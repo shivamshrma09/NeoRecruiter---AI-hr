@@ -11,24 +11,21 @@ const app = express();
 
 connectToDatabase();
 
-// CORS with multiple origins and credentials support
 app.use(cors({
-  origin: [
-    'http://localhost:5173',
-    'https://neo-recruiter-ai-hr.vercel.app',
-    'https://neorecruiter-ai-hr-1.onrender.com'
-  ],
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
 }));
+
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.get('/', (req, res) => {
-  res.send('Hello World');
+  res.send('NeoRecruiter Backend API - Running Successfully');
 });
 
 app.use('/hr', hrRoutes);
