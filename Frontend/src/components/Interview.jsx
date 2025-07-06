@@ -4,7 +4,7 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-const API_BASE_URL = "http://localhost:3000";
+const API_BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
 async function apiPost(path, body, isFormData = false) {
   const options = {
     method: "POST",
