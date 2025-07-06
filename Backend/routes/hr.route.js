@@ -243,7 +243,7 @@ Score 1=Poor, 2=Below Average, 3=Average, 4=Good, 5=Excellent. Respond with JSON
       }
       
       // 1. Get scores using Gemini API
-      const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
