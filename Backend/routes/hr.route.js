@@ -214,23 +214,41 @@ router.post("/save-answer", async (req, res) => {
     candidate.answers[questionIndex] = answer;
 
     // --- Gemini AI scoring integration ---
-    const prompt = `You are an expert technical interviewer. Analyze this candidate's answer and provide scores from 1-5 for each criteria.
+    const prompt = `You are an expert technical interviewer with 10+ years of experience. Analyze this candidate's answer comprehensively.
 
+INTERVIEW CONTEXT:
 Question: ${question}
 Expected Answer: ${expectedAnswer || "Not provided"}
-Candidate Answer: ${answer}
+Candidate's Answer: ${answer}
 
-Please respond ONLY with valid JSON in this exact format:
+ANALYSIS REQUIRED:
+Provide detailed scores (1-5) with specific reasoning for each criteria:
+
+1. RELEVANCE: How well does the answer address the question?
+2. CONTENT DEPTH: Technical accuracy and completeness
+3. COMMUNICATION: Clarity, structure, and articulation
+4. SENTIMENT: Confidence and professional attitude
+5. SKILL DEMONSTRATION: Practical knowledge shown
+6. OVERALL PERFORMANCE: Holistic assessment
+
+Respond ONLY with valid JSON in this exact format:
 {
-  "Relevance": "4 - Directly addresses the question",
-  "ContentDepth": "3 - Shows good understanding", 
-  "CommunicationSkill": "4 - Clear and well-structured",
-  "Sentiment": "4 - Positive and confident",
-  "skillcorrect": "3 - Demonstrates competency",
-  "overallscore": "4 - Strong overall response"
+  "Relevance": "4 - Answer directly addresses the core question with good focus on key concepts",
+  "ContentDepth": "3 - Shows solid understanding but lacks some technical details and examples",
+  "CommunicationSkill": "4 - Well-structured response with clear explanations and logical flow",
+  "Sentiment": "4 - Confident and professional tone, shows enthusiasm for the topic",
+  "skillcorrect": "3 - Demonstrates competency but could show more practical application",
+  "overallscore": "4 - Strong candidate with good technical foundation and communication skills"
 }
 
-Score 1=Poor, 2=Below Average, 3=Average, 4=Good, 5=Excellent. Respond with JSON only.`;
+SCORING GUIDE:
+1 = Poor (Major gaps, incorrect, unclear)
+2 = Below Average (Some issues, incomplete)
+3 = Average (Meets basic requirements)
+4 = Good (Above expectations, well done)
+5 = Excellent (Outstanding, comprehensive)
+
+Provide detailed, constructive feedback in each score description.`;
 
     let scores = {};
     let aiFeedback = "";
@@ -248,29 +266,45 @@ Score 1=Poor, 2=Below Average, 3=Average, 4=Good, 5=Excellent. Respond with JSON
       const response = await result.response;
       const text = response.text();
       
-      console.log('Gemini API Response:', text);
+      console.log('\n=== GEMINI AI ANALYSIS ===');
+      console.log('Question:', question);
+      console.log('Candidate Answer:', answer.substring(0, 100) + '...');
+      console.log('Raw AI Response:', text);
       
       // Try to parse JSON response
       try {
         scores = JSON.parse(text);
+        console.log('✅ JSON Parsed Successfully');
+        console.log('Parsed Scores:', scores);
       } catch (parseError) {
-        // Extract scores from text response manually
-        console.log('Parsing JSON failed, extracting scores manually');
+        console.log('❌ JSON Parsing Failed:', parseError.message);
+        console.log('🔄 Extracting scores manually from text');
         scores = extractScoresFromText(text, answer, expectedAnswer);
+        console.log('Extracted Scores:', scores);
       }
 
-      // 2. Get improvement suggestion
-      const improvementPrompt = `Based on this interview question and answer, provide ONE specific improvement suggestion in 1-2 sentences:
+      // 2. Get detailed improvement suggestion
+      const improvementPrompt = `As an expert technical interviewer, provide detailed improvement suggestions for this candidate:
 
 Question: ${question}
+Expected Answer: ${expectedAnswer || "Not provided"}
 Candidate Answer: ${answer}
 
-Provide only the improvement suggestion, no other text:`;
+Provide 2-3 specific, actionable improvement suggestions that would help the candidate give a stronger answer. Focus on:
+- Technical accuracy and completeness
+- Communication and structure
+- Practical examples or use cases
+- Industry best practices
+
+Format as a clear, constructive paragraph (3-4 sentences):`;
       const improvementResult = await model.generateContent(improvementPrompt);
       const improvementResponse = await improvementResult.response;
       improvement = improvementResponse.text().trim();
+      
+      console.log('\n=== IMPROVEMENT SUGGESTION ===');
+      console.log('AI Improvement:', improvement);
 
-      aiFeedback = "See detailed scores and comments above.";
+      aiFeedback = "Comprehensive AI analysis completed with detailed scoring and improvement suggestions.";
 
     } catch (geminiErr) {
       console.error('Gemini API Error:', geminiErr.message);
@@ -302,14 +336,22 @@ Provide only the improvement suggestion, no other text:`;
       candidate.completedAt = new Date();
     }
 
+    console.log('\n=== DATABASE SAVE ===');
+    console.log('Saving scores for question', questionIndex);
+    console.log('Final scores object:', candidate.scores[questionIndex]);
+    
     hr.markModified("interviews");
     await hr.save();
+    
+    console.log('✅ Successfully saved to database');
+    console.log('=== END AI ANALYSIS ===\n');
 
     res.json({ 
-      msg: "Answer and scores saved", 
+      msg: "Answer analyzed and saved successfully", 
       scores: candidate.scores[questionIndex], 
       improvement,
-      isCompleted: candidate.status === 'completed'
+      isCompleted: candidate.status === 'completed',
+      aiAnalysisComplete: true
     });
   } catch (err) {
     res.status(500).json({ msg: "Server error", error: err.message });
@@ -448,14 +490,17 @@ function extractScoresFromText(text, answer, expectedAnswer) {
 
 // Generate intelligent fallback scores
 function generateFallbackScores(answer, expectedAnswer, question) {
+  console.log('\n=== FALLBACK SCORING SYSTEM ===');
+  console.log('Using intelligent fallback analysis');
+  
   if (!answer || answer.trim().length === 0) {
     return {
-      Relevance: "1 - No answer provided",
-      ContentDepth: "1 - No content to analyze",
-      CommunicationSkill: "1 - No communication",
-      Sentiment: "2 - Neutral",
-      skillcorrect: "1 - No demonstration of skill",
-      overallscore: "1 - Insufficient response"
+      Relevance: "1 - No answer provided, unable to assess relevance to the question",
+      ContentDepth: "1 - No content available for technical depth analysis",
+      CommunicationSkill: "1 - No communication demonstrated, cannot evaluate clarity",
+      Sentiment: "2 - Neutral response, no engagement indicators present",
+      skillcorrect: "1 - No technical skills or knowledge demonstrated in response",
+      overallscore: "1 - Insufficient response for comprehensive evaluation"
     };
   }
   
@@ -510,14 +555,62 @@ function generateFallbackScores(answer, expectedAnswer, question) {
   
   const overallScore = Math.round((relevanceScore + depthScore + commScore + skillScore) / 4);
   
-  return {
-    Relevance: `${relevanceScore} - ${getScoreDescription(relevanceScore, 'relevance')}`,
-    ContentDepth: `${depthScore} - ${getScoreDescription(depthScore, 'depth')}`,
-    CommunicationSkill: `${commScore} - ${getScoreDescription(commScore, 'communication')}`,
-    Sentiment: `${sentimentScore} - Positive and engaged`,
-    skillcorrect: `${skillScore} - ${getScoreDescription(skillScore, 'skill')}`,
-    overallscore: `${overallScore} - ${getScoreDescription(overallScore, 'overall')}`
+  const finalScores = {
+    Relevance: `${relevanceScore} - ${getDetailedScoreDescription(relevanceScore, 'relevance', answer, expectedAnswer)}`,
+    ContentDepth: `${depthScore} - ${getDetailedScoreDescription(depthScore, 'depth', answer, expectedAnswer)}`,
+    CommunicationSkill: `${commScore} - ${getDetailedScoreDescription(commScore, 'communication', answer, expectedAnswer)}`,
+    Sentiment: `${sentimentScore} - Shows positive engagement and professional attitude in response`,
+    skillcorrect: `${skillScore} - ${getDetailedScoreDescription(skillScore, 'skill', answer, expectedAnswer)}`,
+    overallscore: `${overallScore} - ${getDetailedScoreDescription(overallScore, 'overall', answer, expectedAnswer)}`
   };
+  
+  console.log('Fallback scores generated:', finalScores);
+  return finalScores;
+}
+
+function getDetailedScoreDescription(score, type, answer, expectedAnswer) {
+  const answerLength = answer ? answer.length : 0;
+  const wordCount = answer ? answer.split(/\s+/).length : 0;
+  
+  const descriptions = {
+    1: { 
+      relevance: `Answer does not address the core question. Lacks focus on required topics.`,
+      depth: `Very superficial response with minimal technical content (${wordCount} words).`,
+      communication: `Unclear expression with poor structure and difficult to follow logic.`,
+      skill: `No demonstration of technical knowledge or practical understanding.`,
+      overall: `Poor performance requiring significant improvement across all areas.`
+    },
+    2: { 
+      relevance: `Somewhat addresses the question but misses key points or goes off-topic.`,
+      depth: `Basic level understanding with limited technical details (${wordCount} words).`,
+      communication: `Adequate communication but lacks clarity and proper structure.`,
+      skill: `Limited technical understanding with gaps in fundamental concepts.`,
+      overall: `Below average performance with room for improvement in technical depth.`
+    },
+    3: { 
+      relevance: `Moderately relevant answer covering main points but could be more focused.`,
+      depth: `Good understanding demonstrated with reasonable technical content (${wordCount} words).`,
+      communication: `Clear communication with logical flow and understandable explanations.`,
+      skill: `Basic competency shown with fundamental concepts understood correctly.`,
+      overall: `Average performance meeting basic requirements with solid foundation.`
+    },
+    4: { 
+      relevance: `Highly relevant response directly addressing question with good focus.`,
+      depth: `Comprehensive understanding with detailed technical explanations (${wordCount} words).`,
+      communication: `Articulate and well-structured response with clear professional communication.`,
+      skill: `Good technical expertise demonstrated with practical knowledge application.`,
+      overall: `Above average performance showing strong technical competency and communication.`
+    },
+    5: { 
+      relevance: `Perfectly relevant answer comprehensively addressing all aspects of the question.`,
+      depth: `Expert level understanding with exceptional technical depth and insights (${wordCount} words).`,
+      communication: `Excellent communication with outstanding clarity, structure, and professional presentation.`,
+      skill: `Expert demonstration of technical mastery with advanced practical applications.`,
+      overall: `Excellent performance exceeding expectations with exceptional technical and communication skills.`
+    }
+  };
+  
+  return descriptions[score]?.[type] || `Good response demonstrating competency in ${type}.`;
 }
 
 function getScoreDescription(score, type) {
