@@ -1,0 +1,331 @@
+NEORECRUITER - COMPLETE PROJECT DOCUMENTATION
+=============================================
+
+PROJECT OVERVIEW
+================
+NeoRecruiter is a full-stack AI-powered interview platform built with modern technologies.
+It enables HR professionals to conduct intelligent interviews with real-time AI analysis,
+anti-cheating detection, and comprehensive candidate evaluation.
+
+TECHNOLOGY STACK
+================
+Frontend: React + Vite + Tailwind CSS
+Backend: Node.js + Express.js
+Database: MongoDB + Mongoose
+AI: Google Gemini API
+Authentication: JWT with blacklisting
+Email: Nodemailer with Gmail
+File Upload: Multer
+
+KEY FEATURES IMPLEMENTED
+========================
+1. Complete Authentication System
+   - HR registration/login with JWT
+   - Password hashing with bcrypt
+   - Token blacklisting for logout
+   - Protected routes with middleware
+
+2. AI-Powered Interview Analysis
+   - Google Gemini API integration
+   - Real-time answer scoring (1-5 scale)
+   - Fallback intelligent scoring system
+   - Multi-criteria evaluation
+
+3. Balance Management System
+   - ₹50 per candidate pricing
+   - Balance verification before interview creation
+   - Automatic deduction on interview setup
+
+4. Anti-Cheating Detection
+   - Tab switch/minimize monitoring
+   - Copy/paste/cut detection
+   - Screen recording capability
+   - Visual red flags in dashboard
+
+5. Email Notification System
+   - Automatic interview invitations
+   - Professional HTML templates
+   - Simple interview links
+
+6. Comprehensive Dashboard
+   - Real-time statistics
+   - Candidate ranking by AI scores
+   - Detailed performance analytics
+   - Interview management
+
+7. Advanced Interview Experience
+   - 3-step process (Verification → Permissions → Interview)
+   - Company branding display
+   - Fullscreen interview mode
+   - Voice interaction (TTS/STT)
+   - Real-time chat interface
+
+DATABASE SCHEMA
+===============
+HR Schema:
+- companyName, email, password (hashed)
+- interviews[] (embedded documents)
+- Balance (number, default: 0)
+- interviewCount, createdAt
+
+Interview Schema:
+- role, technicalDomain
+- questions[] (text, expectedAnswer)
+- candidates[] (embedded documents)
+- createdAt
+
+Candidate Schema:
+- email, name, phone, resume (file path)
+- answers[] (string array)
+- scores[] (AI analysis objects)
+- cheatingDetected (boolean)
+- cheatingFlags[] (string array)
+- status, completedAt
+
+Score Schema:
+- Relevance, ContentDepth, CommunicationSkill
+- Sentiment, skillcorrect, overallscore
+- aiFeedback, improvement (AI suggestions)
+
+API ENDPOINTS
+=============
+Authentication:
+POST /hr/register - HR registration
+POST /hr/login - HR login
+GET /hr/profile - Get HR profile
+POST /hr/logout - Secure logout
+
+Interview Management:
+POST /hr/interviews - Create interview (balance check)
+GET /hr/interviews - Get all interviews
+POST /hr/candidate-register - Candidate registration
+POST /hr/save-answer - Save answer with AI analysis
+POST /hr/get-candidate-company - Get company info
+
+File Operations:
+POST /hr/upload-screen-recording - Upload recordings
+POST /hr/log-action - Log user actions
+
+AI INTEGRATION
+==============
+Google Gemini API:
+- Model: gemini-pro
+- Scoring criteria: Relevance, Content Depth, Communication, Sentiment, Skill
+- JSON response parsing with fallback
+- Intelligent backup scoring system
+
+Fallback Scoring Logic:
+- Answer length analysis
+- Keyword matching with expected answers
+- Technical term detection
+- Realistic score distribution (1-5)
+
+SECURITY FEATURES
+=================
+Authentication:
+- JWT tokens with expiration
+- Password hashing (bcrypt, 10 rounds)
+- Token blacklisting on logout
+- Protected route middleware
+
+Data Protection:
+- Input validation and sanitization
+- CORS configuration
+- Environment variable protection
+- Error handling without data exposure
+
+Anti-Cheating:
+- Real-time behavior monitoring
+- Action logging with timestamps
+- Visual indicators for HR
+- Comprehensive flag system
+
+DEPLOYMENT ARCHITECTURE
+=======================
+Frontend Deployment (Vercel):
+- Build: npm run build
+- Environment: VITE_BASE_URL
+- Static file serving
+- Automatic deployments
+
+Backend Deployment (Render):
+- Node.js server
+- Environment variables configuration
+- MongoDB Atlas connection
+- Automatic scaling
+
+Database (MongoDB Atlas):
+- Cloud-hosted MongoDB
+- Free tier available
+- Global cluster deployment
+- Automatic backups
+
+FILE STRUCTURE
+==============
+Backend/
+├── controllers/hr.controller.js (business logic)
+├── models/hr.model.js (database schemas)
+├── routes/hr.route.js (API endpoints)
+├── services/email.service.js (email functionality)
+├── middlewares/hr.middleware.js (authentication)
+├── db/db.js (database connection)
+├── uploads/ (file storage)
+├── server.js (entry point)
+└── app.js (Express configuration)
+
+Frontend/
+├── src/
+│   ├── components/
+│   │   ├── Home.jsx (landing page)
+│   │   ├── Login.jsx (authentication)
+│   │   ├── Signup.jsx (registration)
+│   │   ├── HomeDashboard.jsx (main dashboard)
+│   │   └── Interview.jsx (interview interface)
+│   ├── context/UserContext.jsx (state management)
+│   ├── utils/api.js (HTTP client)
+│   ├── App.jsx (routing)
+│   └── main.jsx (entry point)
+└── public/ (static assets)
+
+CORE FUNCTIONALITIES
+====================
+1. HR Workflow:
+   - Register/Login with company details
+   - Create interviews with balance verification
+   - Monitor candidates in real-time
+   - View detailed AI analysis and rankings
+
+2. Candidate Workflow:
+   - Receive email invitation
+   - Verify email on interview page
+   - Complete 3-step interview process
+   - AI analysis happens in background
+
+3. AI Analysis Workflow:
+   - Answer submitted to /hr/save-answer
+   - Gemini API processes response
+   - Scores saved to database
+   - Dashboard updated in real-time
+
+4. Anti-Cheating Workflow:
+   - Real-time monitoring during interview
+   - Actions logged to database
+   - Flags displayed in dashboard
+   - HR can make informed decisions
+
+PERFORMANCE OPTIMIZATIONS
+=========================
+Frontend:
+- Vite for fast development and builds
+- Code splitting with React Router
+- Optimized bundle sizes
+- Efficient state management
+
+Backend:
+- Mongoose ODM for efficient queries
+- Connection pooling
+- Error handling and logging
+- Optimized API responses
+
+Database:
+- Indexed fields for faster queries
+- Embedded documents for related data
+- Efficient schema design
+- Connection optimization
+
+TROUBLESHOOTING GUIDE
+=====================
+Common Issues:
+
+1. AI Scores Showing 0:
+   - Check GEMINI_API_KEY in environment
+   - Verify API quota and billing
+   - Check console logs for errors
+   - Fallback scoring should activate
+
+2. Email Not Sending:
+   - Verify EMAIL_USER and EMAIL_PASS
+   - Use Gmail app-specific password
+   - Check Gmail security settings
+   - Enable 2-factor authentication
+
+3. 404 Errors:
+   - Verify all routes are properly defined
+   - Check API base URL configuration
+   - Ensure backend server is running
+   - Verify CORS settings
+
+4. Balance Issues:
+   - Check HR.Balance field in database
+   - Verify balance deduction logic
+   - Ensure proper error handling
+   - Check interview creation flow
+
+DEPLOYMENT CHECKLIST
+====================
+Backend Deployment:
+□ Set all environment variables
+□ Configure MongoDB Atlas connection
+□ Set up Gmail app password
+□ Deploy to Render/Railway
+□ Test API endpoints
+□ Verify file upload functionality
+
+Frontend Deployment:
+□ Update VITE_BASE_URL to production API
+□ Build production bundle
+□ Deploy to Vercel/Netlify
+□ Test all routes and functionality
+□ Verify API integration
+
+Database Setup:
+□ Create MongoDB Atlas cluster
+□ Configure network access
+□ Set up database user
+□ Update connection string
+□ Test database connectivity
+
+FUTURE ENHANCEMENTS
+===================
+Potential Improvements:
+- Video interview capabilities
+- Advanced AI models (GPT-4, Claude)
+- Mobile application
+- Integration with popular ATS systems
+- Multi-language support
+- Advanced analytics dashboard
+- Bulk candidate import
+- Interview scheduling system
+- Real-time notifications
+- Advanced reporting features
+
+MAINTENANCE NOTES
+=================
+Regular Tasks:
+- Monitor API usage and costs
+- Update dependencies regularly
+- Backup database regularly
+- Monitor server performance
+- Review security logs
+- Update AI prompts for better accuracy
+
+Code Quality:
+- Follow consistent coding standards
+- Maintain comprehensive error handling
+- Keep documentation updated
+- Regular code reviews
+- Performance monitoring
+- Security audits
+
+CONTACT INFORMATION
+===================
+Developer: Shivam Sharma
+Email: shivamsharma27107@gmail.com
+GitHub: https://github.com/shivamshrma09
+Repository: https://github.com/shivamshrma09/NeoRecruiter---AI-hr
+
+PROJECT STATUS: PRODUCTION READY
+LAST UPDATED: 2024
+VERSION: 1.0.0
+
+END OF DOCUMENTATION
