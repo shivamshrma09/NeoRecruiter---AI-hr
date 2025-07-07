@@ -692,12 +692,7 @@ export default function Interview() {
               </h1>
               <div className="flex items-center space-x-4">
                 <ScreenRecorder candidateEmail={candidateEmail} disabled={interviewCompleted} setNotification={showNotification} />
-                {cheatingFlags.length > 0 && (
-                  <div className="bg-red-500 text-white px-3 py-1 rounded-full text-sm flex items-center">
-                    <FaExclamationTriangle className="mr-1" />
-                    Suspicious Activity Detected
-                  </div>
-                )}
+                {/* NeoAssistant is hidden from candidates */}
               </div>
             </div>
 

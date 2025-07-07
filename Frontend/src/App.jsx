@@ -5,6 +5,7 @@ import Dashboard from "./components/HomeDashboard";
 import Interview from "./components/Interview";
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import UserContext, { UserDataContext } from "./context/UserContext";
+import Charts from "./components/Charts"
 import { useContext } from 'react';
 
 function AppContent() {
@@ -23,6 +24,7 @@ function AppContent() {
       <Route path="/Signup" element={<Signup />} />
       <Route path="/Dashboard" element={<Dashboard onLogout={handleLogout} />} />
       <Route path="/interview" element={<Interview />} />
+      <Route path="/Charts" element={<Charts />} />
     </Routes>
   );
 }
