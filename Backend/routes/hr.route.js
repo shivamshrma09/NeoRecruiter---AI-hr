@@ -396,7 +396,7 @@ Format as a clear, constructive paragraph (3-4 sentences):`;
     console.log('\n=== SAVING TO DATABASE ===');
     console.log('Question Index:', questionIndex);
     console.log('Mapped Scores:', mappedScores);
-    console.log('Candidate Email:', candidateEmail);
+    console.log('Candidate Email:', email);
 
     // Update candidate status if all questions answered
     if (candidate.answers.filter(a => a && a.trim()).length === interview.questions.length) {
@@ -409,20 +409,34 @@ Format as a clear, constructive paragraph (3-4 sentences):`;
     console.log('Saving scores for question', questionIndex);
     console.log('Final scores object:', candidate.scores[questionIndex]);
     
-    // Force mark as modified
+    // Simplified save approach
     hr.markModified('interviews');
-    hr.markModified(`interviews.${hr.interviews.findIndex(i => i.candidates.some(c => c.email === candidateEmail))}.candidates`);
     
-    // Save with validation
-    const saveResult = await hr.save();
-    console.log('Save result:', saveResult ? 'SUCCESS' : 'FAILED');
+    try {
+      await hr.save();
+      console.log('✅ Database save successful');
+    } catch (saveError) {
+      console.error('❌ Database save failed:', saveError.message);
+      // Try alternative save method
+      try {
+        await Hr.findByIdAndUpdate(hr._id, { interviews: hr.interviews });
+        console.log('✅ Alternative save method successful');
+      } catch (altSaveError) {
+        console.error('❌ Alternative save also failed:', altSaveError.message);
+        throw new Error('Failed to save interview data');
+      }
+    }
     
     // Verify save by re-fetching
-    const verifyHr = await Hr.findById(hr._id);
-    const verifyInterview = verifyHr.interviews.find(i => i.candidates.some(c => c.email === candidateEmail));
-    const verifyCandidate = verifyInterview.candidates.find(c => c.email === candidateEmail);
-    
-    console.log('✅ VERIFICATION - Scores in DB:', verifyCandidate.scores[questionIndex]);
+    try {
+      const verifyHr = await Hr.findById(hr._id);
+      const verifyInterview = verifyHr.interviews.find(i => i.candidates.some(c => c.email === email));
+      const verifyCandidate = verifyInterview.candidates.find(c => c.email === email);
+      
+      console.log('✅ VERIFICATION - Scores in DB:', verifyCandidate.scores[questionIndex]);
+    } catch (verifyError) {
+      console.log('⚠️ Verification failed but save likely succeeded:', verifyError.message);
+    }
     console.log('=== END AI ANALYSIS ===\n');
 
     res.json({ 
@@ -433,7 +447,18 @@ Format as a clear, constructive paragraph (3-4 sentences):`;
       aiAnalysisComplete: true
     });
   } catch (err) {
-    res.status(500).json({ msg: "Server error", error: err.message });
+    console.error('\n=== SAVE ANSWER ERROR ===');
+    console.error('Error details:', err);
+    console.error('Stack trace:', err.stack);
+    console.error('Email:', email);
+    console.error('Question Index:', questionIndex);
+    console.error('=== END ERROR ===\n');
+    
+    res.status(500).json({ 
+      msg: "Failed to save answer and analyze response", 
+      error: err.message,
+      details: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   }
 });
 
