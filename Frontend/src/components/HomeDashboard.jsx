@@ -21,10 +21,16 @@ import {
   FaEye,
   FaTrash,
   FaUsers,
-  FaCheck
+  FaCheck,
+  FaBars,
+  FaTimes,
+  FaChartBar,
+  FaFileAlt,
+  FaVideo
 } from "react-icons/fa"
 import { UserDataContext } from "../context/UserContext"
 import api from "../utils/api"
+import AnalyticsDashboard from './Charts'
 
 // --- Dashboard Home ---
 function DashboardHome({ onCreateNewInterview }) {
@@ -65,7 +71,7 @@ function DashboardHome({ onCreateNewInterview }) {
           onClick={onCreateNewInterview}
           className="px-6 py-3 bg-blue-700 text-white rounded-lg font-semibold flex items-center shadow-lg hover:bg-blue-800 transition duration-300 transform hover:scale-105 group"
         >
-          <FaPlus className="mr-2 group-hover:rotate-90 transition-transform duration-300" />
+          <FaPlus className="mr-2 group-hover:rotate-45 transition-transform duration-250" />
           Create New Interview
         </button>
       </div>
@@ -364,7 +370,7 @@ function CreateInterviewForm({ onComplete }) {
             </div>
             <div>
               <label htmlFor="technicalName" className="block text-gray-700 text-base font-bold mb-2">
-                <FaLaptopCode className="inline mr-2 text-blue-700" /> Technical/Domain Name (Optional)
+                <FaLaptopCode className="inline mr-2 text-blue-700" /> Technical/Domain Name 
               </label>
               <input
                 type="text"
@@ -374,6 +380,7 @@ function CreateInterviewForm({ onComplete }) {
                 placeholder="e.g., Fullstack Development, Marketing Analytics"
                 value={formData.technicalName}
                 onChange={handleChange}
+                required
               />
             </div>
           </div>
@@ -584,7 +591,7 @@ function Schedules() {
                 </div>
               </div>
               <div className="flex space-x-2">
-                <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition duration-200">
+                <button  className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition duration-200">
                   <FaEye className="inline mr-1" /> View Details
                 </button>
                 <button className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 transition duration-200">

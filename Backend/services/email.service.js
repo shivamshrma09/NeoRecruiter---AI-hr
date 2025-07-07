@@ -46,12 +46,9 @@ const sendInterviewInvitation = async (candidateEmail, interviewDetails) => {
     // Send email
     try {
       await transporter.sendMail(mailOptions)
-      console.log('📧 EMAIL SENT TO:', candidateEmail)
     } catch (emailError) {
       console.error('Email sending failed:', emailError)
-      console.log('📧 EMAIL FAILED TO SEND TO:', candidateEmail)
-      console.log('📋 SUBJECT:', mailOptions.subject)
-      console.log('🔗 INTERVIEW LINK:', interviewDetails.interviewLink)
+
     }
     
     return { success: true, message: 'Email sent successfully' }

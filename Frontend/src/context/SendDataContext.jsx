@@ -1,11 +1,8 @@
 import React, { createContext } from "react";
 
-// SendDataContext banayein
 export const SendDataContext = createContext();
 
-// Provider component
 export function SendDataProvider({ children }) {
-  // Universal data bhejne wala function
   const sendData = async ({ url, method = "POST", data = {}, headers = {}, withCredentials = false }) => {
     try {
       const response = await fetch(url, {

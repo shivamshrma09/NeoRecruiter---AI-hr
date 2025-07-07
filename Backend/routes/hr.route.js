@@ -80,6 +80,9 @@ router.post('/interviews', authHrMiddleware.authHr, async (req, res) => {
       return sendInterviewInvitation(email, interviewDetails);
     }));
 
+
+
+
     res.status(201).json({
       message: 'Interview created and invitations sent successfully',
       interview: newInterview,
@@ -213,32 +216,39 @@ router.post("/save-answer", async (req, res) => {
     }
     candidate.answers[questionIndex] = answer;
 
-    // --- Gemini AI scoring integration ---
-    const prompt = `You are an expert technical interviewer with 10+ years of experience. Analyze this candidate's answer comprehensively.
+    // --- Enhanced Gemini AI scoring integration ---
+    const prompt = `You are a senior technical interviewer and HR expert. Conduct a comprehensive analysis of this candidate's response.
 
 INTERVIEW CONTEXT:
 Question: ${question}
 Expected Answer: ${expectedAnswer || "Not provided"}
 Candidate's Answer: ${answer}
+Answer Length: ${answer.length} characters
+Word Count: ${answer.split(' ').length} words
 
-ANALYSIS REQUIRED:
-Provide detailed scores (1-5) with specific reasoning for each criteria:
+COMPREHENSIVE EVALUATION CRITERIA:
+Analyze and score (1-5) each parameter with detailed reasoning:
 
-1. RELEVANCE: How well does the answer address the question?
-2. CONTENT DEPTH: Technical accuracy and completeness
-3. COMMUNICATION: Clarity, structure, and articulation
-4. SENTIMENT: Confidence and professional attitude
-5. SKILL DEMONSTRATION: Practical knowledge shown
-6. OVERALL PERFORMANCE: Holistic assessment
+1. TECHNICAL RELEVANCE: Direct alignment with question requirements
+2. CONTENT DEPTH: Technical accuracy, completeness, and sophistication
+3. COMMUNICATION CLARITY: Structure, articulation, and professional presentation
+4. CONFIDENCE & ATTITUDE: Professional demeanor and self-assurance
+5. PRACTICAL KNOWLEDGE: Real-world application and hands-on understanding
+6. PROBLEM-SOLVING APPROACH: Logical thinking and methodology
+7. INDUSTRY AWARENESS: Current trends and best practices knowledge
+8. OVERALL COMPETENCY: Holistic candidate assessment for hiring decision
 
-Respond ONLY with valid JSON in this exact format:
+CRITICAL: Respond with ONLY valid JSON. No extra text, explanations, or formatting. Just the JSON object:
+
 {
-  "Relevance": "4 - Answer directly addresses the core question with good focus on key concepts",
-  "ContentDepth": "3 - Shows solid understanding but lacks some technical details and examples",
-  "CommunicationSkill": "4 - Well-structured response with clear explanations and logical flow",
-  "Sentiment": "4 - Confident and professional tone, shows enthusiasm for the topic",
-  "skillcorrect": "3 - Demonstrates competency but could show more practical application",
-  "overallscore": "4 - Strong candidate with good technical foundation and communication skills"
+"TechnicalRelevance": "4 - Answer directly addresses the core question with good focus on key concepts",
+"ContentDepth": "3 - Shows solid understanding but lacks some technical details and examples",
+"CommunicationClarity": "4 - Well-structured response with clear explanations and logical flow",
+"ConfidenceAttitude": "4 - Confident and professional tone, shows enthusiasm for the topic",
+"PracticalKnowledge": "3 - Demonstrates competency but could show more practical application",
+"ProblemSolving": "3 - Shows logical thinking but could demonstrate better methodology",
+"IndustryAwareness": "3 - Basic awareness of industry practices and current trends",
+"OverallCompetency": "4 - Strong candidate with good technical foundation and communication skills"
 }
 
 SCORING GUIDE:
@@ -260,24 +270,69 @@ Provide detailed, constructive feedback in each score description.`;
         throw new Error('Gemini API key not configured');
       }
       
-      // 1. Get scores using Gemini API
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
+      console.log('🤖 Starting REAL Gemini AI Analysis...');
+      
+      // 1. Get scores using Gemini API with retry mechanism
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        generationConfig: {
+          temperature: 0.3,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 1024,
+        }
+      });
+      
+      let result, response, text;
+      let retryCount = 0;
+      const maxRetries = 3;
+      
+      while (retryCount < maxRetries) {
+        try {
+          console.log(`Attempt ${retryCount + 1}/${maxRetries} - Calling Gemini API...`);
+          result = await model.generateContent(prompt);
+          response = await result.response;
+          text = response.text();
+          console.log('✅ Gemini API call successful');
+          break;
+        } catch (apiError) {
+          retryCount++;
+          console.log(`❌ Attempt ${retryCount} failed:`, apiError.message);
+          if (retryCount >= maxRetries) {
+            throw apiError;
+          }
+          // Wait before retry
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount));
+        }
+      }
       
       console.log('\n=== GEMINI AI ANALYSIS ===');
       console.log('Question:', question);
       console.log('Candidate Answer:', answer.substring(0, 100) + '...');
       console.log('Raw AI Response:', text);
       
-      // Try to parse JSON response
+      // Try to parse JSON response with cleaning
       try {
-        scores = JSON.parse(text);
+        // Clean the response text
+        let cleanText = text.trim();
+        
+        // Remove markdown code blocks if present
+        cleanText = cleanText.replace(/```json\s*|```\s*/g, '');
+        
+        // Remove any text before the first { and after the last }
+        const firstBrace = cleanText.indexOf('{');
+        const lastBrace = cleanText.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1) {
+          cleanText = cleanText.substring(firstBrace, lastBrace + 1);
+        }
+        
+        console.log('Cleaned text for parsing:', cleanText);
+        scores = JSON.parse(cleanText);
         console.log('✅ JSON Parsed Successfully');
         console.log('Parsed Scores:', scores);
       } catch (parseError) {
         console.log('❌ JSON Parsing Failed:', parseError.message);
+        console.log('Original text:', text);
         console.log('🔄 Extracting scores manually from text');
         scores = extractScoresFromText(text, answer, expectedAnswer);
         console.log('Extracted Scores:', scores);
@@ -461,31 +516,57 @@ router.post('/log-action', async (req, res) => {
 
 // Helper function to extract scores from text response
 function extractScoresFromText(text, answer, expectedAnswer) {
-  const scores = {
-    Relevance: "3 - Moderate relevance",
-    ContentDepth: "3 - Adequate depth", 
-    CommunicationSkill: "3 - Clear communication",
-    Sentiment: "4 - Positive attitude",
-    skillcorrect: "3 - Basic understanding",
-    overallscore: "3 - Satisfactory response"
+  console.log('\n=== EXTRACTING SCORES FROM TEXT ===');
+  console.log('Raw text to parse:', text);
+  
+  // Try to find JSON-like content in the text
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (jsonMatch) {
+    try {
+      console.log('Found JSON-like content:', jsonMatch[0]);
+      const cleanJson = jsonMatch[0]
+        .replace(/\n/g, ' ')
+        .replace(/\s+/g, ' ')
+        .replace(/,\s*}/g, '}');
+      const parsed = JSON.parse(cleanJson);
+      console.log('Successfully parsed JSON from text:', parsed);
+      return parsed;
+    } catch (e) {
+      console.log('Failed to parse extracted JSON:', e.message);
+    }
+  }
+  
+  // Advanced pattern matching for scores
+  const scores = {};
+  
+  // Look for "Relevance": "4 - description" patterns
+  const patterns = {
+    Relevance: /"?Relevance"?\s*:?\s*"?([1-5])\s*-\s*([^"\n]+)"?/i,
+    ContentDepth: /"?ContentDepth"?\s*:?\s*"?([1-5])\s*-\s*([^"\n]+)"?/i,
+    CommunicationSkill: /"?CommunicationSkill"?\s*:?\s*"?([1-5])\s*-\s*([^"\n]+)"?/i,
+    Sentiment: /"?Sentiment"?\s*:?\s*"?([1-5])\s*-\s*([^"\n]+)"?/i,
+    skillcorrect: /"?skillcorrect"?\s*:?\s*"?([1-5])\s*-\s*([^"\n]+)"?/i,
+    overallscore: /"?overallscore"?\s*:?\s*"?([1-5])\s*-\s*([^"\n]+)"?/i
   };
   
-  // Try to extract numeric scores from text
-  const relevanceMatch = text.match(/relevance[:\s]*(\d)/i);
-  const depthMatch = text.match(/depth[:\s]*(\d)/i);
-  const commMatch = text.match(/communication[:\s]*(\d)/i);
-  const sentMatch = text.match(/sentiment[:\s]*(\d)/i);
-  const skillMatch = text.match(/skill[:\s]*(\d)/i);
-  const overallMatch = text.match(/overall[:\s]*(\d)/i);
+  let foundAny = false;
+  Object.keys(patterns).forEach(key => {
+    const match = text.match(patterns[key]);
+    if (match) {
+      scores[key] = `${match[1]} - ${match[2].trim()}`;
+      foundAny = true;
+      console.log(`Extracted ${key}: ${scores[key]}`);
+    }
+  });
   
-  if (relevanceMatch) scores.Relevance = `${relevanceMatch[1]} - AI analyzed relevance`;
-  if (depthMatch) scores.ContentDepth = `${depthMatch[1]} - AI analyzed depth`;
-  if (commMatch) scores.CommunicationSkill = `${commMatch[1]} - AI analyzed communication`;
-  if (sentMatch) scores.Sentiment = `${sentMatch[1]} - AI analyzed sentiment`;
-  if (skillMatch) scores.skillcorrect = `${skillMatch[1]} - AI analyzed skill`;
-  if (overallMatch) scores.overallscore = `${overallMatch[1]} - AI overall score`;
+  if (foundAny) {
+    console.log('Successfully extracted scores from patterns:', scores);
+    return scores;
+  }
   
-  return scores;
+  // If no patterns found, use intelligent fallback
+  console.log('No patterns found, using intelligent fallback');
+  return generateFallbackScores(answer, expectedAnswer, 'Failed to parse AI response');
 }
 
 // Generate intelligent fallback scores

@@ -3,7 +3,6 @@ import React, { createContext, useState, useEffect } from "react";
 // Context banayein
 export const ProfileContext = createContext();
 
-// Provider component
 export function ProfileProvider({ children }) {
   const [profile, setProfile] = useState(null);
 

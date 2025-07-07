@@ -138,6 +138,9 @@ function ScreenRecorder({ candidateEmail, disabled, setNotification }) {
     </div>
   );
 }
+   
+
+
 
 // -------------------- StepperItem Component --------------------
 const StepperItem = ({ icon: Icon, label, isActive }) => (
@@ -151,7 +154,7 @@ const StepperItem = ({ icon: Icon, label, isActive }) => (
   </div>
 );
 
-// -------------------- Main Component --------------------
+// -------------------- Main Component --------------------                                   
 export default function Interview() {
   // -------------------- State --------------------
   const [step, setStep] = useState(1);

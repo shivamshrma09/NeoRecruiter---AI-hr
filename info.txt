@@ -1,0 +1,15 @@
+----------------model---------------------
+1.make object in object by array poperty 
+
+
+-----------------services--------------
+1.this file use to creat a user just 
+
+--------------------controller----------------
+1.alaways cheak some conditions then creat hr (register)
+2.
+3.
+
+
+------------------Routes------------------
+1.
