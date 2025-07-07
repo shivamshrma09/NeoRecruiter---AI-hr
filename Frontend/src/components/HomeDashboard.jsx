@@ -626,8 +626,8 @@ function CandidateDetailView({ candidate, interview, onBack }) {
     scores: candidate.scores || [],
     overallScore: candidate.scores?.length > 0 
       ? Math.round(candidate.scores.reduce((acc, score) => {
-          const overallScore = score.overallscore || '0'
-          const numericScore = parseInt(overallScore.split(' ')[0]) || 0
+          const overallScore = score.OverallCompetency || score.overallscore || '0'
+          const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0
           return acc + numericScore
         }, 0) / candidate.scores.length * 20)
       : 0,
@@ -898,8 +898,9 @@ function InterviewResultView({ interview, onBack, onCandidateSelect }) {
                     <p className="text-lg font-bold text-green-600">
                       {candidate.scores?.length > 0 
                         ? Math.round(candidate.scores.reduce((acc, score) => {
-                            const overallScore = score.overallscore || '0'
-                            const numericScore = parseInt(overallScore.split(' ')[0]) || 0
+                            // Try multiple score fields for compatibility
+                            const overallScore = score.OverallCompetency || score.overallscore || '0'
+                            const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0
                             return acc + numericScore
                           }, 0) / candidate.scores.length * 20)
                         : 0}%
@@ -1121,6 +1122,20 @@ export default function DashboardPage({ onLogout }) {
   const [isCreatingInterview, setIsCreatingInterview] = useState(false)
   const { user } = useContext(UserDataContext)
 
+  const [interviews, setInterviews] = useState([])
+  
+  useEffect(() => {
+    const fetchInterviews = async () => {
+      try {
+        const response = await api.get('/hr/interviews')
+        setInterviews(response.data.interviews || [])
+      } catch (err) {
+        console.error('Failed to fetch interviews for analytics:', err)
+      }
+    }
+    if (user) fetchInterviews()
+  }, [user])
+
   const renderContent = () => {
     if (isCreatingInterview) {
       return <CreateInterviewForm onComplete={() => setIsCreatingInterview(false)} />
@@ -1132,6 +1147,8 @@ export default function DashboardPage({ onLogout }) {
         return <Schedules />
       case "results":
         return <Results />
+      case "analytics":
+        return <AnalyticsDashboard interviews={interviews} />
       case "help":
         return <Help />
       case "documentation":
@@ -1160,6 +1177,7 @@ export default function DashboardPage({ onLogout }) {
                 { key: "dashboard", icon: FaTachometerAlt, label: "Dashboard" },
                 { key: "schedules", icon: FaCalendarAlt, label: "Schedules" },
                 { key: "results", icon: FaClipboardList, label: "Results" },
+                { key: "analytics", icon: FaChartBar, label: "Analytics" },
                 { key: "help", icon: FaQuestionCircle, label: "Help" },
                 { key: "documentation", icon: FaBook, label: "Documentation" }
               ].map(({ key, icon: Icon, label }) => (

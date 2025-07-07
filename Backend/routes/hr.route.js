@@ -369,21 +369,34 @@ Format as a clear, constructive paragraph (3-4 sentences):`;
       improvement = generateFallbackImprovement(answer, expectedAnswer);
     }
 
-    // Save scores, feedback, and improvement
+    // Save scores, feedback, and improvement with proper mapping
     if (!Array.isArray(candidate.scores)) candidate.scores = [];
     while (candidate.scores.length <= questionIndex) {
       candidate.scores.push({});
     }
-    candidate.scores[questionIndex] = {
-      Relevance: scores.Relevance || '0 - No analysis',
+    
+    // Map new enhanced scores to old format for compatibility
+    const mappedScores = {
+      Relevance: scores.TechnicalRelevance || scores.Relevance || '0 - No analysis',
       ContentDepth: scores.ContentDepth || '0 - No analysis',
-      CommunicationSkill: scores.CommunicationSkill || '0 - No analysis',
-      Sentiment: scores.Sentiment || '0 - No analysis',
-      skillcorrect: scores.skillcorrect || '0 - No analysis',
-      overallscore: scores.overallscore || '0 - No analysis',
+      CommunicationSkill: scores.CommunicationClarity || scores.CommunicationSkill || '0 - No analysis',
+      Sentiment: scores.ConfidenceAttitude || scores.Sentiment || '0 - No analysis',
+      skillcorrect: scores.PracticalKnowledge || scores.skillcorrect || '0 - No analysis',
+      overallscore: scores.OverallCompetency || scores.overallscore || '0 - No analysis',
+      // Enhanced fields
+      TechnicalRelevance: scores.TechnicalRelevance || '0 - No analysis',
+      ProblemSolving: scores.ProblemSolving || '0 - No analysis',
+      IndustryAwareness: scores.IndustryAwareness || '0 - No analysis',
       aiFeedback,
       improvement
     };
+    
+    candidate.scores[questionIndex] = mappedScores;
+    
+    console.log('\n=== SAVING TO DATABASE ===');
+    console.log('Question Index:', questionIndex);
+    console.log('Mapped Scores:', mappedScores);
+    console.log('Candidate Email:', candidateEmail);
 
     // Update candidate status if all questions answered
     if (candidate.answers.filter(a => a && a.trim()).length === interview.questions.length) {
@@ -391,14 +404,25 @@ Format as a clear, constructive paragraph (3-4 sentences):`;
       candidate.completedAt = new Date();
     }
 
-    console.log('\n=== DATABASE SAVE ===');
+    console.log('\n=== FORCE DATABASE SAVE ===');
+    console.log('Before save - Candidate scores length:', candidate.scores.length);
     console.log('Saving scores for question', questionIndex);
     console.log('Final scores object:', candidate.scores[questionIndex]);
     
-    hr.markModified("interviews");
-    await hr.save();
+    // Force mark as modified
+    hr.markModified('interviews');
+    hr.markModified(`interviews.${hr.interviews.findIndex(i => i.candidates.some(c => c.email === candidateEmail))}.candidates`);
     
-    console.log('✅ Successfully saved to database');
+    // Save with validation
+    const saveResult = await hr.save();
+    console.log('Save result:', saveResult ? 'SUCCESS' : 'FAILED');
+    
+    // Verify save by re-fetching
+    const verifyHr = await Hr.findById(hr._id);
+    const verifyInterview = verifyHr.interviews.find(i => i.candidates.some(c => c.email === candidateEmail));
+    const verifyCandidate = verifyInterview.candidates.find(c => c.email === candidateEmail);
+    
+    console.log('✅ VERIFICATION - Scores in DB:', verifyCandidate.scores[questionIndex]);
     console.log('=== END AI ANALYSIS ===\n');
 
     res.json({ 

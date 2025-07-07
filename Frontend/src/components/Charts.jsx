@@ -111,19 +111,33 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color = "blue" }) => {
 };
 
 const AnalyticsDashboard = ({ interviews = [] }) => {
-  // Calculate analytics data
+  console.log('Analytics Dashboard - Interviews data:', interviews);
+  
+  // Calculate analytics data from real interview data
   const totalCandidates = interviews.reduce((sum, interview) => sum + (interview.candidates?.length || 0), 0);
   const completedInterviews = interviews.reduce((sum, interview) => 
     sum + (interview.candidates?.filter(c => c.status === 'completed')?.length || 0), 0);
   
-  const avgScore = interviews.reduce((sum, interview) => {
-    const scores = interview.candidates?.filter(c => c.scores?.length > 0)
-      .map(c => c.scores.reduce((acc, score) => {
-        const overallScore = score.OverallCompetency || score.overallscore || '0';
-        return acc + (parseInt(overallScore.split(' ')[0]) || 0);
-      }, 0) / c.scores.length) || [];
-    return sum + (scores.reduce((a, b) => a + b, 0) / scores.length || 0);
-  }, 0) / interviews.length || 0;
+  // Calculate real average score from actual data
+  let totalScores = 0;
+  let scoreCount = 0;
+  
+  interviews.forEach(interview => {
+    interview.candidates?.forEach(candidate => {
+      if (candidate.scores?.length > 0) {
+        candidate.scores.forEach(score => {
+          const overallScore = score.OverallCompetency || score.overallscore || '0';
+          const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0;
+          totalScores += numericScore;
+          scoreCount++;
+        });
+      }
+    });
+  });
+  
+  const avgScore = scoreCount > 0 ? (totalScores / scoreCount) : 0;
+  
+  console.log('Calculated avgScore:', avgScore, 'from', scoreCount, 'scores');
 
   // Score distribution data
   const scoreDistribution = [
