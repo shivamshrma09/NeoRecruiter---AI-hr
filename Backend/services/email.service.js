@@ -29,7 +29,7 @@ const sendInterviewInvitation = async (candidateEmail, interviewDetails) => {
           </div>
           
           <p>Click the link below to start your interview:</p>
-          <a href="https://neorecruiter-pk9oysyge-neorecruiters-projects.vercel.app/interview" 
+          <a href="https://neorecruiter.vercel.app/interview" 
              style="background: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
             Start Interview
           </a>

@@ -39,7 +39,8 @@ exports.RegisterHr = async (req, res) => {
                 email: user.email,
                 Balance: user.Balance
             },
-            token
+            token,
+            conversion: true // For Google Ads tracking
         });
     } catch (err) {
         res.status(500).json({ message: 'Server Error', error: err.message });
