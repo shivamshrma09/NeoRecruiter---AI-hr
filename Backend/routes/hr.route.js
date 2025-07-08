@@ -55,7 +55,7 @@ router.post('/interviews', authHrMiddleware.authHr, async (req, res) => {
       })),
       candidates: candidateEmails.map(email => ({
         email,
-        interviewLink: `http://localhost:5173/interview`,
+        interviewLink: `https://neorecruiter-pk9oysyge-neorecruiters-projects.vercel.app/interview`,
         answers: [],
         scores: []
       })),
@@ -75,7 +75,7 @@ router.post('/interviews', authHrMiddleware.authHr, async (req, res) => {
         role,
         technicalDomain,
         questions,
-        interviewLink: `http://localhost:5173/interview`
+        interviewLink: `https://neorecruiter-pk9oysyge-neorecruiters-projects.vercel.app/interview`
       };
       return sendInterviewInvitation(email, interviewDetails);
     }));
