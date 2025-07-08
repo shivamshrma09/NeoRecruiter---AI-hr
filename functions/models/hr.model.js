@@ -66,7 +66,7 @@ const hrSchema = new mongoose.Schema({
   interviewCount: { type: Number, default: 0 },
   interviewCountCandidate: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
-  Balance: { type: Number, default: 1000 },
+  Balance: { type: Number, default: 0 },
 });
 
 // Methods

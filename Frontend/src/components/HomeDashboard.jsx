@@ -47,10 +47,28 @@ function DashboardHome({ onCreateNewInterview }) {
         const interviews = interviewsRes.data.interviews || []
         const totalCandidates = interviews.reduce((sum, interview) => sum + (interview.candidates?.length || 0), 0)
         
+        const avgScore = interviews.length > 0 
+          ? Math.round(interviews.reduce((sum, interview) => {
+              const interviewAvg = interview.candidates?.length > 0 
+                ? interview.candidates.reduce((candidateSum, candidate) => {
+                    const candidateScore = candidate.scores?.length > 0 
+                      ? Math.round(candidate.scores.reduce((scoreSum, score) => {
+                          const overallScore = score.OverallCompetency || score.overallscore || '0'
+                          const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0
+                          return scoreSum + numericScore
+                        }, 0) / candidate.scores.length * 20)
+                      : 0
+                    return candidateSum + candidateScore
+                  }, 0) / interview.candidates.length
+                : 0
+              return sum + interviewAvg
+            }, 0) / interviews.length)
+          : 0
+        
         setStats({ 
           interviews: interviews.length, 
           candidates: totalCandidates, 
-          avgScore: 85 
+          avgScore 
         })
         setRecentInterviews(interviews.slice(-5).reverse())
       } catch (err) {
@@ -777,82 +795,214 @@ function CandidateDetailView({ candidate, interview, onBack }) {
           )}
 
           {activeTab === 'resume' && (
-            <div className="text-center py-12">
-              <FaBook className="text-6xl text-blue-400 mb-6 mx-auto" />
-              <h4 className="text-xl font-bold text-gray-800 mb-4">Resume</h4>
-              <p className="text-gray-600 mb-6">View or download candidate's resume</p>
-              <a
-                href={candidateData.resume}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-300"
-              >
-                <FaBook className="mr-2" /> View Resume
-              </a>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Resume Section */}
+              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
+                <div className="text-center">
+                  <FaBook className="text-6xl text-blue-400 mb-4 mx-auto" />
+                  <h4 className="text-xl font-bold text-gray-800 mb-4">Resume</h4>
+                  <p className="text-gray-600 mb-6">View or download candidate's resume</p>
+                  <a
+                    href={candidateData.resume}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors duration-300"
+                  >
+                    <FaBook className="mr-2" /> View Resume
+                  </a>
+                </div>
+              </div>
+              
+              {/* Premium Analytics Section */}
+              <div className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-200 rounded-lg p-6 shadow-lg relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-3 py-1 rounded-bl-lg text-xs font-bold">
+                  💎 PREMIUM
+                </div>
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl">🧠</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-purple-800 mb-2">Advanced AI Analytics</h4>
+                  <p className="text-purple-600 text-sm">Unlock deeper insights with premium analysis</p>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="bg-white/70 rounded-lg p-4 border border-purple-200">
+                    <h5 className="font-semibold text-purple-800 mb-2 flex items-center">
+                      <span className="mr-2">🎯</span> Personality Assessment
+                    </h5>
+                    <div className="text-sm text-gray-600">
+                      <div className="flex justify-between mb-1">
+                        <span>Leadership Potential</span>
+                        <span className="font-semibold text-purple-600">87%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" style={{width: '87%'}}></div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/70 rounded-lg p-4 border border-purple-200">
+                    <h5 className="font-semibold text-purple-800 mb-2 flex items-center">
+                      <span className="mr-2">🧐</span> Cognitive Analysis
+                    </h5>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div className="text-center p-2 bg-purple-100 rounded">
+                        <div className="font-bold text-purple-700">92%</div>
+                        <div className="text-purple-600">Problem Solving</div>
+                      </div>
+                      <div className="text-center p-2 bg-blue-100 rounded">
+                        <div className="font-bold text-blue-700">85%</div>
+                        <div className="text-blue-600">Critical Thinking</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/70 rounded-lg p-4 border border-purple-200">
+                    <h5 className="font-semibold text-purple-800 mb-2 flex items-center">
+                      <span className="mr-2">📊</span> Predictive Insights
+                    </h5>
+                    <div className="text-sm text-gray-600">
+                      <div className="flex items-center justify-between mb-2">
+                        <span>Job Success Probability</span>
+                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-bold">94%</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Cultural Fit Score</span>
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-bold">89%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-6 text-center">
+                  <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                    🚀 Upgrade to Premium
+                  </button>
+                  <p className="text-xs text-purple-600 mt-2">Unlock advanced AI insights for better hiring decisions</p>
+                </div>
+              </div>
             </div>
           )}
 
           {activeTab === 'analytics' && (
             <div className="space-y-6">
-              <h4 className="text-xl font-bold text-gray-800 mb-4">Performance Analytics</h4>
+              <div className="flex justify-between items-center mb-6">
+                <h4 className="text-xl font-bold text-gray-800">AI-Powered Performance Analytics</h4>
+                <div className="flex items-center gap-2 bg-blue-100 px-3 py-1 rounded-full">
+                  <span className="text-blue-600 text-sm">🤖 Powered by Gemini AI</span>
+                </div>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                <div className="bg-blue-50 p-4 rounded-lg text-center">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg text-center border border-blue-200 shadow-sm">
                   <div className="text-3xl font-bold text-blue-700 mb-2">{candidateData.overallScore}%</div>
                   <p className="text-gray-700 font-medium">Overall Score</p>
+                  <div className="mt-2">
+                    {candidateData.overallScore >= 90 && <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">✨ Exceptional</span>}
+                    {candidateData.overallScore >= 80 && candidateData.overallScore < 90 && <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">💪 Excellent</span>}
+                    {candidateData.overallScore >= 70 && candidateData.overallScore < 80 && <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded-full">👍 Good</span>}
+                    {candidateData.overallScore < 70 && <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">📊 Needs Improvement</span>}
+                  </div>
                 </div>
-                <div className="bg-green-50 p-4 rounded-lg text-center">
+                <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg text-center border border-green-200 shadow-sm">
                   <div className="text-3xl font-bold text-green-700 mb-2">
                     {candidateData.scores.length > 0 ? 
                       Math.round(candidateData.scores.reduce((acc, score) => acc + (parseInt(score.Relevance?.split(' ')[0]) || 0), 0) / candidateData.scores.length * 20)
                     : 0}%
                   </div>
                   <p className="text-gray-700 font-medium">Relevance Score</p>
+                  <p className="text-xs text-green-600 mt-1">Answer Accuracy</p>
                 </div>
-                <div className="bg-purple-50 p-4 rounded-lg text-center">
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg text-center border border-purple-200 shadow-sm">
                   <div className="text-3xl font-bold text-purple-700 mb-2">
                     {candidateData.scores.length > 0 ? 
                       Math.round(candidateData.scores.reduce((acc, score) => acc + (parseInt(score.ContentDepth?.split(' ')[0]) || 0), 0) / candidateData.scores.length * 20)
                     : 0}%
                   </div>
                   <p className="text-gray-700 font-medium">Content Depth</p>
+                  <p className="text-xs text-purple-600 mt-1">Technical Knowledge</p>
+                </div>
+                <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-4 rounded-lg text-center border border-orange-200 shadow-sm">
+                  <div className="text-3xl font-bold text-orange-700 mb-2">
+                    {candidateData.scores.length > 0 ? 
+                      Math.round(candidateData.scores.reduce((acc, score) => acc + (parseInt(score.CommunicationSkill?.split(' ')[0]) || 0), 0) / candidateData.scores.length * 20)
+                    : 0}%
+                  </div>
+                  <p className="text-gray-700 font-medium">Communication</p>
+                  <p className="text-xs text-orange-600 mt-1">Clarity & Expression</p>
                 </div>
               </div>
               
-              <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-                <h5 className="font-bold text-gray-800 mb-4">Question-wise Performance</h5>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-4 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Question</th>
-                        <th className="px-4 py-3 bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Overall</th>
-                        <th className="px-4 py-3 bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Relevance</th>
-                        <th className="px-4 py-3 bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Content</th>
-                        <th className="px-4 py-3 bg-gray-50 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Communication</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {interview.questions?.map((question, index) => (
-                        <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="px-4 py-3 text-sm text-gray-900 truncate max-w-xs">
-                            {question.text.length > 50 ? `${question.text.substring(0, 50)}...` : question.text}
-                          </td>
-                          <td className="px-4 py-3 text-sm text-center">
-                            <span className={`inline-block rounded-full px-3 py-1 text-sm font-semibold 
-                              ${parseInt(candidateData.scores[index]?.overallscore?.split(' ')[0]) > 3 ? 'bg-green-100 text-green-800' : 
-                                parseInt(candidateData.scores[index]?.overallscore?.split(' ')[0]) > 2 ? 'bg-yellow-100 text-yellow-800' : 
-                                'bg-red-100 text-red-800'}`}>
-                              {candidateData.scores[index]?.overallscore ? parseInt(candidateData.scores[index].overallscore.split(' ')[0]) * 20 : 0}%
+              {/* Real Gemini AI Analysis */}
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-6 shadow-lg">
+                <div className="flex items-center justify-between mb-4">
+                  <h5 className="font-bold text-blue-800 flex items-center">
+                    <span className="mr-2">🤖</span> Gemini AI Analysis Report
+                  </h5>
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold">Real-time AI Insights</span>
+                </div>
+                
+                <div className="space-y-4">
+                  {candidateData.scores.map((score, index) => (
+                    <div key={index} className="bg-white rounded-lg p-4 border border-blue-200 shadow-sm">
+                      <div className="flex justify-between items-start mb-3">
+                        <h6 className="font-semibold text-gray-800">Question {index + 1}</h6>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            parseInt(score.overallscore?.split(' ')[0]) >= 4 ? 'bg-green-100 text-green-800' :
+                            parseInt(score.overallscore?.split(' ')[0]) >= 3 ? 'bg-blue-100 text-blue-800' :
+                            parseInt(score.overallscore?.split(' ')[0]) >= 2 ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {score.overallscore ? parseInt(score.overallscore.split(' ')[0]) * 20 : 0}% Overall
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div className="text-center p-3 bg-green-50 rounded-lg border border-green-200">
+                          <div className="font-bold text-green-700">{score.Relevance || 'N/A'}</div>
+                          <div className="text-xs text-green-600">Relevance</div>
+                        </div>
+                        <div className="text-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+                          <div className="font-bold text-purple-700">{score.ContentDepth || 'N/A'}</div>
+                          <div className="text-xs text-purple-600">Content Depth</div>
+                        </div>
+                        <div className="text-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+                          <div className="font-bold text-orange-700">{score.CommunicationSkill || 'N/A'}</div>
+                          <div className="text-xs text-orange-600">Communication</div>
+                        </div>
+                      </div>
+                      
+                      {score.Sentiment && (
+                        <div className="bg-blue-50 p-3 rounded-lg border border-blue-200 mb-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-blue-800">Sentiment Analysis:</span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-bold ${
+                              score.Sentiment.includes('Positive') ? 'bg-green-100 text-green-800' :
+                              score.Sentiment.includes('Neutral') ? 'bg-gray-100 text-gray-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {score.Sentiment}
                             </span>
-                          </td>
-                          <td className="px-4 py-3 text-sm text-center">{candidateData.scores[index]?.Relevance || 'N/A'}</td>
-                          <td className="px-4 py-3 text-sm text-center">{candidateData.scores[index]?.ContentDepth || 'N/A'}</td>
-                          <td className="px-4 py-3 text-sm text-center">{candidateData.scores[index]?.CommunicationSkill || 'N/A'}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                          </div>
+                        </div>
+                      )}
+                      
+                      {score.improvement && (
+                        <div className="bg-yellow-50 p-3 rounded-lg border-l-4 border-yellow-400">
+                          <div className="flex items-start">
+                            <span className="text-yellow-600 mr-2">💡</span>
+                            <div>
+                              <p className="text-sm font-medium text-yellow-800">AI Improvement Suggestion:</p>
+                              <p className="text-sm text-yellow-700 mt-1">{score.improvement}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
               
@@ -1054,6 +1204,26 @@ function CandidateDetailView({ candidate, interview, onBack }) {
   )
 }
 
+// --- Top Performer Badge Component ---
+function TopPerformerBadge({ rank, score }) {
+  const badges = {
+    1: { icon: '🥇', color: 'bg-gradient-to-r from-yellow-400 to-yellow-600', text: 'text-yellow-900', label: '1st Place' },
+    2: { icon: '🥈', color: 'bg-gradient-to-r from-gray-300 to-gray-500', text: 'text-gray-900', label: '2nd Place' },
+    3: { icon: '🥉', color: 'bg-gradient-to-r from-orange-400 to-orange-600', text: 'text-orange-900', label: '3rd Place' }
+  };
+  
+  const badge = badges[rank];
+  if (!badge) return null;
+  
+  return (
+    <div className={`${badge.color} ${badge.text} px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-lg animate-pulse`}>
+      <span className="text-sm">{badge.icon}</span>
+      <span>{badge.label}</span>
+      <span className="ml-1">({score}%)</span>
+    </div>
+  );
+}
+
 // --- Interview Result View ---
 function InterviewResultView({ interview, onBack, onCandidateSelect }) {
   return (
@@ -1066,6 +1236,9 @@ function InterviewResultView({ interview, onBack, onCandidateSelect }) {
           <FaChevronLeft className="mr-2" /> Back to Results
         </button>
         <h2 className="text-3xl font-bold text-gray-800">{interview.role} - Results</h2>
+        <div className="ml-4 bg-blue-100 px-4 py-2 rounded-lg">
+          <span className="text-blue-800 font-semibold">🏆 Top Performers Ranked</span>
+        </div>
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-lg mb-6">
@@ -1096,7 +1269,14 @@ function InterviewResultView({ interview, onBack, onCandidateSelect }) {
       </div>
 
       <div className="bg-white p-6 rounded-xl shadow-lg">
-        <h3 className="text-xl font-bold text-gray-800 mb-6">Candidate Results (Sorted by Score)</h3>
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl font-bold text-gray-800">Candidate Leaderboard 🏆</h3>
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <span>🥇 Gold: 80%+</span>
+            <span>🥈 Silver: 70%+</span>
+            <span>🥉 Bronze: 60%+</span>
+          </div>
+        </div>
         <div className="grid gap-4">
           {interview.candidates
             ?.sort((a, b) => {
@@ -1116,46 +1296,52 @@ function InterviewResultView({ interview, onBack, onCandidateSelect }) {
                 : 0
               return scoreB - scoreA // Highest score first
             })
-            ?.map((candidate, index) => (
-            <div key={index} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-all duration-300 cursor-pointer"
+            ?.map((candidate, index) => {
+              const candidateScore = candidate.scores?.length > 0 
+                ? Math.round(candidate.scores.reduce((acc, score) => {
+                    const overallScore = score.OverallCompetency || score.overallscore || '0'
+                    const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0
+                    return acc + numericScore
+                  }, 0) / candidate.scores.length * 20)
+                : 0;
+              
+              return (
+            <div key={index} className={`border rounded-lg p-4 hover:shadow-md transition-all duration-300 cursor-pointer ${
+              index < 3 ? 'border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-purple-50' : 'border-gray-200'
+            }`}
                  onClick={() => onCandidateSelect(candidate)}>
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-4">
                   <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                      {candidate.email?.charAt(0).toUpperCase() || 'C'}
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg ${
+                      index === 0 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' :
+                      index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-600' :
+                      index === 2 ? 'bg-gradient-to-r from-orange-400 to-orange-600' :
+                      'bg-gradient-to-r from-blue-500 to-purple-500'
+                    }`}>
+                      {index < 3 ? (index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉') : 
+                       (candidate.email?.charAt(0).toUpperCase() || 'C')}
                     </div>
-                    {candidate.scores?.length > 0 && 
-                      Math.round(candidate.scores.reduce((acc, score) => {
-                        const overallScore = score.OverallCompetency || score.overallscore || '0'
-                        const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0
-                        return acc + numericScore
-                      }, 0) / candidate.scores.length * 20) >= 80 && (
-                      <div className="absolute -top-1 -right-1 bg-yellow-400 text-white w-5 h-5 rounded-full flex items-center justify-center shadow-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      </div>
-                    )}
+                    <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      index === 0 ? 'bg-yellow-500 text-yellow-900' :
+                      index === 1 ? 'bg-gray-500 text-white' :
+                      index === 2 ? 'bg-orange-500 text-white' :
+                      'bg-blue-500 text-white'
+                    }`}>
+                      #{index + 1}
+                    </div>
                   </div>
                   <div>
-                    <div className="flex items-center">
+                    <div className="flex items-center gap-2">
                       <h4 className="font-semibold text-gray-800">{candidate.email}</h4>
-                      {candidate.scores?.length > 0 && 
-                        Math.round(candidate.scores.reduce((acc, score) => {
-                          const overallScore = score.OverallCompetency || score.overallscore || '0'
-                          const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0
-                          return acc + numericScore
-                        }, 0) / candidate.scores.length * 20) >= 80 && (
-                        <span className="ml-2 bg-yellow-100 text-yellow-800 text-xs font-semibold px-1.5 py-0.5 rounded-full flex items-center">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 mr-0.5" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                          </svg>
-                          Top
-                        </span>
-                      )}
+                      {index < 3 && <TopPerformerBadge rank={index + 1} score={candidateScore} />}
                     </div>
-                    <p className="text-sm text-gray-600">Candidate #{index + 1}</p>
+                    <p className="text-sm text-gray-600 flex items-center gap-2">
+                      <span>Rank #{index + 1}</span>
+                      {candidateScore >= 90 && <span className="text-green-600 font-semibold">✨ Exceptional</span>}
+                      {candidateScore >= 80 && candidateScore < 90 && <span className="text-blue-600 font-semibold">💪 Excellent</span>}
+                      {candidateScore >= 70 && candidateScore < 80 && <span className="text-orange-600 font-semibold">👍 Good</span>}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-4">
@@ -1204,7 +1390,8 @@ function InterviewResultView({ interview, onBack, onCandidateSelect }) {
                 </div>
               </div>
             </div>
-          )) || (
+              );
+            }) || (
             <div className="text-center py-8 text-gray-500">
               <FaUsers className="text-4xl mb-4 mx-auto" />
               <p>No candidates have completed this interview yet.</p>

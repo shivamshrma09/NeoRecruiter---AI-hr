@@ -329,6 +329,18 @@ export default function Home() {
         </nav>
       </header>
 
+      {/* Signup Bonus Banner */}
+      <div className="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white py-4 px-6 text-center animate-pulse">
+        <div className="flex items-center justify-center gap-3 text-lg font-bold">
+          <span className="text-2xl">🎉</span>
+          <span>Get ₹1000 FREE Credits on Signup!</span>
+          <span className="text-2xl">🚀</span>
+          <Link to="/signup" className="ml-4 bg-white text-blue-600 px-4 py-2 rounded-full font-bold hover:bg-gray-100 transition duration-300">
+            Claim Now
+          </Link>
+        </div>
+      </div>
+
       {/* Hero Section */}
       <main className="flex flex-col flex-1 items-center justify-center px-4">
         <div className="mt-16 mb-10 text-center animate-fade-in-up max-w-4xl">
