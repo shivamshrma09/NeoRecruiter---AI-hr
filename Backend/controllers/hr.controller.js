@@ -20,8 +20,8 @@ exports.RegisterHr = async (req, res) => {
             return res.status(409).json({ message: 'Email already registered' });
         }
 
-        // Create new HR
-        const user = await hrService.createHr({ companyName, email, password });
+        // Create new HR with ₹1000 signup bonus
+        const user = await hrService.createHr({ companyName, email, password, Balance: 1000 });
         const token = user.generateAuthToken();
 
         // Set token in cookie (optional, else send in response)
@@ -32,11 +32,12 @@ exports.RegisterHr = async (req, res) => {
         });
 
         res.status(201).json({
-            message: 'HR registered successfully',
+            message: 'HR registered successfully! ₹1000 bonus credited to your account.',
             user: {
                 _id: user._id,
                 companyName: user.companyName,
-                email: user.email
+                email: user.email,
+                Balance: user.Balance
             },
             token
         });
@@ -116,7 +117,8 @@ exports.loginHr = async (req, res) => {
             user: {
                 _id: user._id,
                 companyName: user.companyName,
-                email: user.email
+                email: user.email,
+                Balance: user.Balance || 0
             },
             token
         });
@@ -137,7 +139,8 @@ exports.getProfile = async (req, res) => {
         res.status(200).json({
             _id: user._id,
             companyName: user.companyName,
-            email: user.email
+            email: user.email,
+            Balance: user.Balance || 0
         });
     } catch (err) {
         res.status(500).json({ message: 'Server Error', error: err.message });
