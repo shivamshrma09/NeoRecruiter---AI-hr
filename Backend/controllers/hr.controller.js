@@ -103,6 +103,8 @@ exports.loginHr = async (req, res) => {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
+        console.log('Login successful for:', email);
+
         const token = user.generateAuthToken();
 
         res.cookie('token', token, {
@@ -116,14 +118,13 @@ exports.loginHr = async (req, res) => {
             user: {
                 _id: user._id,
                 companyName: user.companyName,
-                email: user.email,
-                Balance: user.Balance || 0
+                email: user.email
             },
             token
         });
     } catch (err) {
-        console.error('Login error:', err);
-        res.status(500).json({ message: 'Server Error', error: err.message });
+        console.error('Login error details:', err);
+        res.status(500).json({ message: 'Login failed', error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error' });
     }
 };
 
@@ -138,8 +139,7 @@ exports.getProfile = async (req, res) => {
         res.status(200).json({
             _id: user._id,
             companyName: user.companyName,
-            email: user.email,
-            Balance: user.Balance || 0
+            email: user.email
         });
     } catch (err) {
         res.status(500).json({ message: 'Server Error', error: err.message });
