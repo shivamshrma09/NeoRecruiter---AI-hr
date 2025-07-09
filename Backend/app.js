@@ -12,22 +12,7 @@ const app = express();
 connectToDatabase();
 
 app.use(cors({
-  origin: function (origin, callback) {
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'https://neorecruiter.vercel.app'
-    ];
-    
-    // Allow all Vercel preview deployments
-    if (!origin || 
-        allowedOrigins.includes(origin) || 
-        origin.includes('neorecruiter') && origin.includes('vercel.app')) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
