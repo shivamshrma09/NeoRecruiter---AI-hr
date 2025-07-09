@@ -7,41 +7,28 @@ const BlackListTokenModel = require('../models/black.list.token.model');
 // HR Registration
 exports.RegisterHr = async (req, res) => {
     try {
-        // Validation errors check
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
+        console.log('Register attempt:', req.body);
+        
         const { companyName, email, password } = req.body;
-        // Check if user already exists
-        const existingUser = await hrModel.findOne({ email });
-        if (existingUser) {
-            return res.status(409).json({ message: 'Email already registered' });
+        
+        if (!companyName || !email || !password) {
+            return res.status(400).json({ message: 'All fields required' });
         }
-
-        // Create new HR with ₹1000 signup bonus
-        const user = await hrService.createHr({ companyName, email, password });
-        const token = user.generateAuthToken();
-
-        // Set token in cookie (optional, else send in response)
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 24 * 60 * 60 * 1000 // 1 day
-        });
-
+        
+        // Simple test response
         res.status(201).json({
-            message: 'HR registered successfully!',
+            message: 'Registration test successful',
             user: {
-                _id: user._id,
-                companyName: user.companyName,
-                email: user.email
+                _id: '123',
+                companyName: companyName,
+                email: email
             },
-            token
+            token: 'test-token'
         });
+        
     } catch (err) {
-        res.status(500).json({ message: 'Server Error', error: err.message });
+        console.error('Register error:', err);
+        res.status(500).json({ message: 'Registration failed', error: err.message });
     }
 };
 
@@ -87,44 +74,28 @@ exports.RegisterHr = async (req, res) => {
 // HR Login
 exports.loginHr = async (req, res) => {
     try {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
+        console.log('Login attempt:', req.body);
+        
         const { email, password } = req.body;
-        const user = await hrModel.findOne({ email }).select('+password');
-        if (!user) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+        
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password required' });
         }
-
-        const isMatch = await user.comparePassword(password);
-        if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid email or password' });
-        }
-
-        console.log('Login successful for:', email);
-
-        const token = user.generateAuthToken();
-
-        res.cookie('token', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            maxAge: 24 * 60 * 60 * 1000
-        });
-
+        
+        // Simple response for testing
         res.status(200).json({
-            message: 'Login successful',
+            message: 'Login test successful',
             user: {
-                _id: user._id,
-                companyName: user.companyName,
-                email: user.email
+                _id: '123',
+                companyName: 'Test Company',
+                email: email
             },
-            token
+            token: 'test-token'
         });
+        
     } catch (err) {
-        console.error('Login error details:', err);
-        res.status(500).json({ message: 'Login failed', error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error' });
+        console.error('Login error:', err);
+        res.status(500).json({ message: 'Login failed', error: err.message });
     }
 };
 
