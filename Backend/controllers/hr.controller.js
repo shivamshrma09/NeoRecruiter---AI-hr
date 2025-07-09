@@ -21,7 +21,7 @@ exports.RegisterHr = async (req, res) => {
         }
 
         // Create new HR with ₹1000 signup bonus
-        const user = await hrService.createHr({ companyName, email, password, Balance: 1000 });
+        const user = await hrService.createHr({ companyName, email, password });
         const token = user.generateAuthToken();
 
         // Set token in cookie (optional, else send in response)
@@ -32,15 +32,13 @@ exports.RegisterHr = async (req, res) => {
         });
 
         res.status(201).json({
-            message: 'HR registered successfully! ₹1000 bonus credited to your account.',
+            message: 'HR registered successfully!',
             user: {
                 _id: user._id,
                 companyName: user.companyName,
-                email: user.email,
-                Balance: user.Balance
+                email: user.email
             },
-            token,
-            conversion: true // For Google Ads tracking
+            token
         });
     } catch (err) {
         res.status(500).json({ message: 'Server Error', error: err.message });

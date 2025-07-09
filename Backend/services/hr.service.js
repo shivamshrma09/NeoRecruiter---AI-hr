@@ -1,6 +1,6 @@
 const hrModel = require("../models/hr.model");
 
-module.exports.createHr = async ({ companyName, email, password, Balance = 1000 }) => {
+module.exports.createHr = async ({ companyName, email, password }) => {
   if (!companyName || !email || !password) {
     throw new Error("All fields are required");
   }
@@ -8,8 +8,7 @@ module.exports.createHr = async ({ companyName, email, password, Balance = 1000 
   const user = await hrModel.create({
     companyName,
     email,
-    password: hashedPassword,
-    Balance
+    password: hashedPassword
   });
   return user;
 };
