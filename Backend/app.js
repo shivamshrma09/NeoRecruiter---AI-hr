@@ -4,28 +4,20 @@ dotenv.config();
 const express = require('express');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const connectToDatabase = require('./db/db');
 const hrRoutes = require('./routes/hr.route');
 const aiRoutes = require('./routes/ai.route');
+const dashboardRoutes = require('./routes/dashboard.route');
 
 const app = express();
 
-connectToDatabase();
+// Skip database connection for demo
+// const connectToDatabase = require('./db/db');
+// connectToDatabase();
 
 app.use(cors({
   origin: function (origin, callback) {
-    const allowedOrigins = [
-      'https://neo-recruiter-ai-hr.vercel.app',
-      'https://neorecruiter.vercel.app',
-      'http://localhost:3000',
-      'https://neorecruiter.vercel.app/',
-      'http://localhost:5173'
-    ];
-    if (!origin || allowedOrigins.includes(origin) || (origin && origin.includes('vercel.app'))) {
-      callback(null, true);
-    } else {
-      callback(null, true);
-    }
+    // Allow all origins for demo purposes
+    callback(null, true);
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -42,5 +34,6 @@ app.get('/', (req, res) => {
 
 app.use('/hr', hrRoutes);
 app.use('/ai', aiRoutes);
+app.use('/dashboard', dashboardRoutes);
 
 module.exports = app;
