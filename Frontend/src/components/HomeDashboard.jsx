@@ -42,36 +42,38 @@ function DashboardHome({ onCreateNewInterview }) {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const interviewsRes = await api.get('/hr/interviews')
-        const interviews = interviewsRes.data.interviews || []
-        const totalCandidates = interviews.reduce((sum, interview) => sum + (interview.candidates?.length || 0), 0)
-        
-        const avgScore = interviews.length > 0 
-          ? Math.round(interviews.reduce((sum, interview) => {
-              const interviewAvg = interview.candidates?.length > 0 
-                ? interview.candidates.reduce((candidateSum, candidate) => {
-                    const candidateScore = candidate.scores?.length > 0 
-                      ? Math.round(candidate.scores.reduce((scoreSum, score) => {
-                          const overallScore = score.OverallCompetency || score.overallscore || '0'
-                          const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0
-                          return scoreSum + numericScore
-                        }, 0) / candidate.scores.length * 20)
-                      : 0
-                    return candidateSum + candidateScore
-                  }, 0) / interview.candidates.length
-                : 0
-              return sum + interviewAvg
-            }, 0) / interviews.length)
-          : 0
-        
-        setStats({ 
-          interviews: interviews.length, 
-          candidates: totalCandidates, 
-          avgScore 
-        })
-        setRecentInterviews(interviews.slice(-5).reverse())
+        // First try to get data from the dashboard endpoint
+        const dashboardRes = await api.get('/dashboard/data')
+        if (dashboardRes.status === 200) {
+          const data = dashboardRes.data
+          setStats({
+            interviews: data.totalInterviews || 0,
+            candidates: data.totalCandidates || 0,
+            avgScore: data.averageScore || 85
+          })
+          
+          // Also get interviews for recent interviews section
+          const interviewsRes = await api.get('/hr/interviews')
+          const interviews = interviewsRes.data.interviews || []
+          setRecentInterviews(interviews.slice(-5).reverse())
+        }
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err)
+        // Fallback to just getting interviews if dashboard endpoint fails
+        try {
+          const interviewsRes = await api.get('/hr/interviews')
+          const interviews = interviewsRes.data.interviews || []
+          const totalCandidates = interviews.reduce((sum, interview) => sum + (interview.candidates?.length || 0), 0)
+          
+          setStats({ 
+            interviews: interviews.length, 
+            candidates: totalCandidates, 
+            avgScore: 85 // Default value
+          })
+          setRecentInterviews(interviews.slice(-5).reverse())
+        } catch (innerErr) {
+          console.error('Failed to fetch interviews as fallback:', innerErr)
+        }
       } finally {
         setLoading(false)
       }
@@ -1686,10 +1688,22 @@ export default function DashboardPage({ onLogout }) {
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
-        const response = await api.get('/hr/interviews')
-        setInterviews(response.data.interviews || [])
+        // First try to get analytics data from the dashboard endpoint
+        const analyticsRes = await api.get('/dashboard/analytics')
+        if (analyticsRes.status === 200) {
+          // If we have analytics data, we still need interviews for other parts of the dashboard
+          const interviewsRes = await api.get('/hr/interviews')
+          setInterviews(interviewsRes.data.interviews || [])
+        }
       } catch (err) {
         console.error('Failed to fetch interviews for analytics:', err)
+        // Fallback to just getting interviews if analytics endpoint fails
+        try {
+          const interviewsRes = await api.get('/hr/interviews')
+          setInterviews(interviewsRes.data.interviews || [])
+        } catch (innerErr) {
+          console.error('Failed to fetch interviews as fallback:', innerErr)
+        }
       }
     }
     if (user) fetchInterviews()
