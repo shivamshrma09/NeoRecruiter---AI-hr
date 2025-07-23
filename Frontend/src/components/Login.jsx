@@ -19,28 +19,39 @@ const UserLogin = () => {
     setLoading(true)
     setError('')
 
+    // Validate inputs
+    if (!email || !password) {
+      setError('Email and password are required')
+      setLoading(false)
+      return
+    }
+
     try {
-      const userData = { email, password }
-      const response = await api.post('/hr/login', userData)
+      const userData = { 
+        email: email, 
+        password: password 
+      };
+      
+      const response = await api.post('/hr/login', userData);
 
       if (response.status === 200) {
-        const data = response.data
+        const data = response.data;
         
         // First store in localStorage
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         
         // Then update context
-        login(data.user, data.token)
+        login(data.user, data.token);
         
         // Navigate immediately without timeout
-        navigate('/Dashboard')
+        navigate('/Dashboard');
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.response?.data?.message || 'Login failed. Please try again.')
+      setError(err.response?.data?.message || 'Invalid email or password. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 

@@ -42,43 +42,50 @@ function DashboardHome({ onCreateNewInterview }) {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // First try to get data from the dashboard endpoint
-        const dashboardRes = await api.get('/dashboard/data')
-        if (dashboardRes.status === 200) {
-          const data = dashboardRes.data
-          setStats({
-            interviews: data.totalInterviews || 0,
-            candidates: data.totalCandidates || 0,
-            avgScore: data.averageScore || 85
-          })
-          
-          // Also get interviews for recent interviews section
-          const interviewsRes = await api.get('/hr/interviews')
-          const interviews = interviewsRes.data.interviews || []
-          setRecentInterviews(interviews.slice(-5).reverse())
+        // Get interviews data
+        const interviewsRes = await api.get('/hr/interviews');
+        const interviews = interviewsRes.data.interviews || [];
+        const totalCandidates = interviews.reduce((sum, interview) => sum + (interview.candidates?.length || 0), 0);
+        
+        // Calculate average score from actual data if available
+        let avgScore = 0;
+        let totalScores = 0;
+        let scoreCount = 0;
+        
+        interviews.forEach(interview => {
+          if (interview.candidates && interview.candidates.length > 0) {
+            interview.candidates.forEach(candidate => {
+              if (candidate.scores && candidate.scores.length > 0) {
+                candidate.scores.forEach(score => {
+                  const overallScore = score.OverallCompetency || score.overallscore || '0';
+                  const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0;
+                  totalScores += numericScore;
+                  scoreCount++;
+                });
+              }
+            });
+          }
+        });
+        
+        if (scoreCount > 0) {
+          avgScore = Math.round((totalScores / scoreCount) * 20); // Convert to percentage
         }
+        
+        setStats({ 
+          interviews: interviews.length, 
+          candidates: totalCandidates, 
+          avgScore: avgScore
+        });
+        setRecentInterviews(interviews.slice(-5).reverse());
       } catch (err) {
-        console.error('Failed to fetch dashboard data:', err)
-        // Fallback to just getting interviews if dashboard endpoint fails
-        try {
-          const interviewsRes = await api.get('/hr/interviews')
-          const interviews = interviewsRes.data.interviews || []
-          const totalCandidates = interviews.reduce((sum, interview) => sum + (interview.candidates?.length || 0), 0)
-          
-          setStats({ 
-            interviews: interviews.length, 
-            candidates: totalCandidates, 
-            avgScore: 85 // Default value
-          })
-          setRecentInterviews(interviews.slice(-5).reverse())
-        } catch (innerErr) {
-          console.error('Failed to fetch interviews as fallback:', innerErr)
-        }
+        console.error('Failed to fetch interview data:', err);
+        setStats({ interviews: 0, candidates: 0, avgScore: 0 });
+        setRecentInterviews([]);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    if (user) fetchDashboardData()
+    };
+    if (user) fetchDashboardData();
   }, [user])
 
   if (!user || loading) return <div className="p-8 text-center">Loading...</div>
@@ -1261,7 +1268,20 @@ function InterviewResultView({ interview, onBack, onCandidateSelect }) {
             <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3">
               <FaChartLine className="text-purple-600 text-2xl" />
             </div>
-            <p className="text-2xl font-bold text-purple-700">85%</p>
+            <p className="text-2xl font-bold text-purple-700">
+              {interview.candidates && interview.candidates.length > 0 ? 
+                Math.round(interview.candidates.reduce((sum, candidate) => {
+                  if (candidate.scores && candidate.scores.length > 0) {
+                    const candidateScore = Math.round(candidate.scores.reduce((acc, score) => {
+                      const overallScore = score.OverallCompetency || score.overallscore || '0';
+                      const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0;
+                      return acc + numericScore;
+                    }, 0) / candidate.scores.length * 20);
+                    return sum + candidateScore;
+                  }
+                  return sum;
+                }, 0) / interview.candidates.length) : 0}%
+            </p>
             <p className="text-gray-600">Average Score</p>
           </div>
         </div>
@@ -1571,7 +1591,20 @@ function Results() {
                 <div className="bg-purple-50 p-4 rounded-lg text-center">
                   <FaChartLine className="text-purple-600 text-2xl mx-auto mb-2" />
                   <p className="text-sm text-gray-600">Avg Score</p>
-                  <p className="text-xl font-bold text-purple-700">85%</p>
+                  <p className="text-xl font-bold text-purple-700">
+                    {interview.candidates && interview.candidates.length > 0 ? 
+                      Math.round(interview.candidates.reduce((sum, candidate) => {
+                        if (candidate.scores && candidate.scores.length > 0) {
+                          const candidateScore = Math.round(candidate.scores.reduce((acc, score) => {
+                            const overallScore = score.OverallCompetency || score.overallscore || '0';
+                            const numericScore = parseInt(overallScore.toString().split(' ')[0]) || 0;
+                            return acc + numericScore;
+                          }, 0) / candidate.scores.length * 20);
+                          return sum + candidateScore;
+                        }
+                        return sum;
+                      }, 0) / interview.candidates.length) : 0}%
+                  </p>
                 </div>
                 <div className="bg-orange-50 p-4 rounded-lg text-center">
                   <FaClipboardList className="text-orange-600 text-2xl mx-auto mb-2" />
@@ -1688,25 +1721,20 @@ export default function DashboardPage({ onLogout }) {
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
-        // First try to get analytics data from the dashboard endpoint
-        const analyticsRes = await api.get('/dashboard/analytics')
-        if (analyticsRes.status === 200) {
-          // If we have analytics data, we still need interviews for other parts of the dashboard
-          const interviewsRes = await api.get('/hr/interviews')
-          setInterviews(interviewsRes.data.interviews || [])
+        // Try to get interviews from API
+        const response = await api.get('/hr/interviews');
+        if (response.data && response.data.interviews) {
+          setInterviews(response.data.interviews);
+        } else {
+          setInterviews([]);
         }
       } catch (err) {
-        console.error('Failed to fetch interviews for analytics:', err)
-        // Fallback to just getting interviews if analytics endpoint fails
-        try {
-          const interviewsRes = await api.get('/hr/interviews')
-          setInterviews(interviewsRes.data.interviews || [])
-        } catch (innerErr) {
-          console.error('Failed to fetch interviews as fallback:', innerErr)
-        }
+        console.error('Failed to fetch interviews:', err);
+        setInterviews([]);
       }
-    }
-    if (user) fetchInterviews()
+    };
+    
+    if (user) fetchInterviews();
   }, [user])
 
   const renderContent = () => {
