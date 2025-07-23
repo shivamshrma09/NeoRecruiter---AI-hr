@@ -9,6 +9,7 @@ import api from '../utils/api';
 const StudentInterview = () => {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
+  const [videoMode, setVideoMode] = useState(false); // Toggle between text and video modes
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -268,6 +269,32 @@ const StudentInterview = () => {
       }
       setError('');
       setStep(2);
+    }
+  };
+  
+  // Function to generate questions based on selected role
+  const generateRoleSpecificQuestions = async (role, numQuestions = 5) => {
+    setIsThinking(true);
+    try {
+      // In a real implementation, this would call the Gemini API
+      // For now, we'll simulate the API call with a delay
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Generate questions based on the role
+      const questions = [
+        `Tell me about your experience with ${role.toLowerCase()} technologies.`,
+        `What projects have you worked on related to ${role.toLowerCase()}?`,
+        `Describe a challenging problem you solved as a ${role.toLowerCase()}.`,
+        `What are your strengths and weaknesses as a ${role.toLowerCase()}?`,
+        `Where do you see yourself in 5 years in the ${role.toLowerCase()} field?`
+      ];
+      
+      setIsThinking(false);
+      return questions;
+    } catch (error) {
+      console.error('Error generating questions:', error);
+      setIsThinking(false);
+      return [];
     }
   };
 

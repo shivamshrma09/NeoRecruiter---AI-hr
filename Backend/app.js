@@ -17,7 +17,7 @@ const app = express();
 // Configure CORS to allow requests from any origin
 app.use(cors({
   origin: '*',
-  credentials: true,
+  credentials: false, // Set to false to avoid preflight issues
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
 }));

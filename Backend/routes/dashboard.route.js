@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const authHrMiddleware = require('../middlewares/hr.middleware');
 
-// Dashboard data endpoint - removed auth middleware for demo
+// Dashboard data endpoint - no auth middleware for demo
 router.get('/data', (req, res) => {
   try {
     // Mock dashboard data
@@ -41,7 +40,7 @@ router.get('/data', (req, res) => {
   }
 });
 
-// Analytics data endpoint - removed auth middleware for demo
+// Analytics data endpoint - no auth middleware for demo
 router.get('/analytics', (req, res) => {
   try {
     // Mock analytics data
