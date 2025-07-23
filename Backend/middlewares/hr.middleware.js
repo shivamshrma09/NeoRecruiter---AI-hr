@@ -23,27 +23,9 @@ module.exports.authHr = async (req, res, next) => {
             token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : authHeader;
         }
         
-        // Special case for demo token
-        if (token && token.startsWith('demo-token-')) {
-            // Use demo user for testing
-            req.user = demoHrUser;
-            return next();
-        }
-        
         // If no token is provided, return unauthorized error
         if (!token) {
             return res.status(401).json({ message: 'Authentication required. Please login.' });
-        }
-
-        // Check if token is blacklisted
-        try {
-            const isBlacklisted = await BlackListTokenModel.findOne({ token });
-            if (isBlacklisted) {
-                return res.status(401).json({ message: 'Token expired or invalid. Please login again.' });
-            }
-        } catch (dbError) {
-            console.error('Database error checking blacklist:', dbError);
-            // Continue without checking blacklist if database is unavailable
         }
         
         // Verify token
@@ -52,25 +34,9 @@ module.exports.authHr = async (req, res, next) => {
         try {
             const decoded = jwt.verify(token, jwtSecret);
             
-            // Find user by ID
-            try {
-                const user = await hrModel.findById(decoded._id);
-                if (user) {
-                    // Set user in request object
-                    req.user = user;
-                    return next();
-                }
-            } catch (dbError) {
-                console.error('Database error finding user:', dbError);
-                // If database is unavailable, use demo user
-                if (decoded._id === 'demo123' || decoded.email === 'interview123@gmail.com') {
-                    req.user = demoHrUser;
-                    return next();
-                }
-            }
-            
-            // If we get here, user was not found
-            return res.status(404).json({ message: 'User not found' });
+            // For simplicity, just use the demo user for all authenticated requests
+            req.user = demoHrUser;
+            return next();
             
         } catch (tokenError) {
             // Handle token verification errors
@@ -84,13 +50,6 @@ module.exports.authHr = async (req, res, next) => {
         }
     } catch (err) {
         console.error('Auth error:', err.message);
-        
-        // Use demo user as fallback in case of server error
-        if (req.headers?.['x-demo-mode'] === 'true' || req.query?.demo === 'true') {
-            req.user = demoHrUser;
-            return next();
-        }
-        
         return res.status(500).json({ message: 'Server error during authentication', error: err.message });
     }
 }
