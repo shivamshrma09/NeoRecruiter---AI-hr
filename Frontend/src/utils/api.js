@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: 'https://neorecruiter-ai-hr-1.onrender.com',
-  withCredentials: true,
+  withCredentials: false, // Changed to false to avoid CORS preflight issues
   headers: { 'Content-Type': 'application/json' },
 });
 

@@ -14,15 +14,16 @@ const app = express();
 // const connectToDatabase = require('./db/db');
 // connectToDatabase();
 
+// Configure CORS to allow requests from any origin
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow all origins for demo purposes
-    callback(null, true);
-  },
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
 }));
+
+// Add OPTIONS handling for preflight requests
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

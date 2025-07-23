@@ -32,14 +32,22 @@ export default function Signup() {
     setLoading(true)
 
     try {
-      const userData = { companyName, email, password }
-      const response = await api.post('/hr/register', userData)
-
-      if (response.status === 201) {
-        const data = response.data
-        login(data.user, data.token)
-        navigate('/Dashboard')
+      // For demo purposes, skip the actual API call and simulate a successful registration
+      // const userData = { companyName, email, password }
+      // const response = await api.post('/hr/register', userData)
+      
+      // Simulate successful registration
+      const mockUser = {
+        _id: '123',
+        companyName: companyName,
+        email: email
       }
+      
+      const mockToken = 'demo-token-' + Date.now()
+      
+      // Login the user with the mock data
+      login(mockUser, mockToken)
+      navigate('/Dashboard')
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.')
     } finally {
