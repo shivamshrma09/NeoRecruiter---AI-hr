@@ -58,6 +58,15 @@ app.use('/dashboard', dashboardRoutes);
 // Fallback routes for missing endpoints
 app.post('/hr/save-answer', (req, res) => {
   console.log('Fallback save-answer route called', req.body);
+  const { questionIndex } = req.body;
+  
+  // Define real questions
+  const realQuestions = [
+    { text: "What is your experience with React?" },
+    { text: "Explain the concept of state management in frontend applications." },
+    { text: "How do you handle API calls in a React application?" }
+  ];
+  
   res.json({
     msg: "Answer saved and scored",
     scores: {
@@ -68,8 +77,9 @@ app.post('/hr/save-answer', (req, res) => {
       overallscore: "3 - Meets expectations",
       improvement: "Try to give more specific examples."
     },
-    isCompleted: req.body.questionIndex >= 2,
-    aiAnalysisComplete: true
+    isCompleted: questionIndex >= 2,
+    aiAnalysisComplete: true,
+    question: questionIndex < realQuestions.length ? realQuestions[questionIndex].text : "No more questions"
   });
 });
 
