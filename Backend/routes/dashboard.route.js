@@ -14,7 +14,7 @@ router.get('/data', authHrMiddleware.authHr, (req, res) => {
       balance: 750,
       recentActivity: [
         { type: 'interview_created', date: new Date(), details: 'Frontend Developer interview created' },
-        { type: 'candidate_completed', date: new Date(Date.now() - 86400000), details: 'John Doe completed interview' },
+        { type: 'candidate_completed', date: new Date(Date.now() - 86400000), details: 'Rahul Sharma completed interview' },
         { type: 'candidate_invited', date: new Date(Date.now() - 172800000), details: '3 candidates invited to Backend Developer interview' }
       ],
       analytics: {

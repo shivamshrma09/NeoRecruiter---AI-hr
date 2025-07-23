@@ -12,7 +12,7 @@ module.exports.authHr = async (req, res, next) => {
             req.user = {
                 _id: '123',
                 email: 'demo@example.com',
-                companyName: 'Test Company',
+                companyName: 'NeoRecruiter',
                 interviews: [],
                 Balance: 1000
             };
@@ -30,7 +30,7 @@ module.exports.authHr = async (req, res, next) => {
             req.user = {
                 _id: decoded._id || '123',
                 email: decoded.email || 'demo@example.com',
-                companyName: 'Test Company',
+                companyName: decoded.companyName || 'NeoRecruiter',
                 interviews: [],
                 Balance: 1000
             };
@@ -39,7 +39,7 @@ module.exports.authHr = async (req, res, next) => {
             req.user = {
                 _id: '123',
                 email: 'demo@example.com',
-                companyName: 'Test Company',
+                companyName: 'NeoRecruiter',
                 interviews: [],
                 Balance: 1000
             };
@@ -52,7 +52,7 @@ module.exports.authHr = async (req, res, next) => {
         req.user = {
             _id: '123',
             email: 'demo@example.com',
-            companyName: 'Test Company',
+            companyName: 'NeoRecruiter',
             interviews: [],
             Balance: 1000
         };

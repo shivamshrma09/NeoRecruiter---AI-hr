@@ -74,8 +74,8 @@ router.get('/interviews', authHrMiddleware.authHr, async (req, res) => {
           { text: 'What is the virtual DOM?', expectedAnswer: 'The virtual DOM is a programming concept where a virtual representation of a UI is kept in memory and synced with the real DOM.' }
         ],
         candidates: [
-          { email: 'candidate1@example.com', name: 'John Doe', status: 'completed' },
-          { email: 'candidate2@example.com', name: 'Jane Smith', status: 'pending' }
+          { email: 'candidate1@example.com', name: 'Rahul Sharma', status: 'completed' },
+          { email: 'candidate2@example.com', name: 'Priya Patel', status: 'pending' }
         ],
         createdAt: new Date()
       },
@@ -88,7 +88,7 @@ router.get('/interviews', authHrMiddleware.authHr, async (req, res) => {
           { text: 'What is the event loop in Node.js?', expectedAnswer: 'The event loop is what allows Node.js to perform non-blocking I/O operations despite JavaScript being single-threaded.' }
         ],
         candidates: [
-          { email: 'candidate3@example.com', name: 'Alex Johnson', status: 'pending' }
+          { email: 'candidate3@example.com', name: 'Amit Kumar', status: 'pending' }
         ],
         createdAt: new Date()
       }

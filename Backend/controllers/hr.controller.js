@@ -36,7 +36,7 @@ exports.loginHr = async (req, res) => {
         
         // Generate a real JWT token that will work with our middleware
         const token = jwt.sign(
-            { _id: '123', email: email },
+            { _id: '123', email: email, companyName: 'NeoRecruiter' },
             process.env.JWT_SECRET || '6e028a98d85a0c5db8dc5bba696f26a3cf3c801380fee7471466886ec9b69be6',
             { expiresIn: '7d' }
         );
@@ -45,7 +45,7 @@ exports.loginHr = async (req, res) => {
             message: 'Login successful',
             user: {
                 _id: '123',
-                companyName: 'Test Company',
+                companyName: 'NeoRecruiter',
                 email: email
             },
             token: token
