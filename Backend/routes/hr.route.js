@@ -37,10 +37,48 @@ router.post('/logout', authHrMiddleware.authHr, hrController.logoutHr);
 // Get all interviews for the HR user
 router.get('/interviews', authHrMiddleware.authHr, async (req, res) => {
   try {
-    const userId = req.user._id;
+    // For demo user, return mock data
+    if (req.user._id === 'demo123' || req.user.email === 'interview123@gmail.com') {
+      // Return mock interview data
+      const mockInterviews = [
+        {
+          _id: "interview1",
+          role: "Frontend Developer",
+          technicalDomain: "React",
+          questions: [
+            { text: "Explain the concept of Virtual DOM in React", expectedAnswer: "Virtual DOM is a lightweight copy of the actual DOM" },
+            { text: "What are React Hooks?", expectedAnswer: "Functions that let you use state and other React features" }
+          ],
+          candidates: [
+            {
+              email: "candidate1@example.com",
+              name: "John Doe",
+              status: "completed",
+              scores: [{ overallscore: "4 - Good" }]
+            }
+          ],
+          createdAt: new Date()
+        }
+      ];
+      
+      return res.json({
+        interviews: mockInterviews,
+        totalInterviews: mockInterviews.length,
+        totalCandidates: 1,
+        completedInterviews: 1,
+        balance: 1000
+      });
+    }
     
-    // Find the HR user with their interviews
-    const hr = await Hr.findById(userId);
+    // For regular users, try to find by ID
+    let hr;
+    try {
+      hr = await Hr.findById(req.user._id);
+    } catch (idError) {
+      // If ID is invalid, try finding by email
+      hr = await Hr.findOne({ email: req.user.email });
+    }
+    
     if (!hr) {
       return res.status(404).json({ message: 'User not found' });
     }
