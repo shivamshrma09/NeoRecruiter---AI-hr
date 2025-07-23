@@ -3,6 +3,7 @@
 ## 🚀 Live Demo
 **Frontend**: [https://neorecruiter-frontend.vercel.app](https://neorecruiter.vercel.app/)
 **Backend**: [https://neorecruiter-backend.onrender.com](https://neorecruiter-ai-hr-1.onrender.com)
+**login credentials** - interview123@gmail.com   interv@123
 
 ## 📋 Overview
 
