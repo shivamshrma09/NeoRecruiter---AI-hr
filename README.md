@@ -1,8 +1,8 @@
 # NeoRecruiter - AI-Powered Interview Platform
 
 ## 🚀 Live Demo
-**Frontend**: [https://neorecruiter-frontend.vercel.app](https://neorecruiter-frontend.vercel.app)
-**Backend**: [https://neorecruiter-backend.onrender.com](https://neorecruiter-backend.onrender.com)
+**Frontend**: [https://neorecruiter-frontend.vercel.app](https://neorecruiter.vercel.app/)
+**Backend**: [https://neorecruiter-backend.onrender.com](https://neorecruiter-ai-hr-1.onrender.com)
 
 ## 📋 Overview
 
