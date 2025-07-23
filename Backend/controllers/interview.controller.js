@@ -1,4 +1,4 @@
-const hrModel = require('../models/hr.model');
+const Hr = require('../models/hr.model');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const mongoose = require('mongoose');
 
@@ -20,7 +20,7 @@ exports.getInterviewForCandidate = async (req, res) => {
     }
     
     // Find the HR that has this interview
-    const hr = await hrModel.findOne({ 'interviews._id': id });
+    const hr = await Hr.findOne({ 'interviews._id': id });
     if (!hr) {
       return res.status(404).json({ message: 'Interview not found' });
     }
@@ -69,7 +69,7 @@ exports.submitCandidateAnswer = async (req, res) => {
     }
     
     // Find the HR that has this interview
-    const hr = await hrModel.findOne({ 'interviews._id': interviewId });
+    const hr = await Hr.findOne({ 'interviews._id': interviewId });
     if (!hr) {
       return res.status(404).json({ message: 'Interview not found' });
     }
@@ -201,7 +201,7 @@ exports.registerCandidate = async (req, res) => {
     }
     
     // Find the HR that has this interview
-    const hr = await hrModel.findOne({ 'interviews._id': interviewId });
+    const hr = await Hr.findOne({ 'interviews._id': interviewId });
     if (!hr) {
       return res.status(404).json({ message: 'Interview not found' });
     }
@@ -253,7 +253,7 @@ exports.uploadScreenRecording = async (req, res) => {
     }
     
     // Find the HR that has this interview
-    const hr = await hrModel.findOne({ 'interviews._id': interviewId });
+    const hr = await Hr.findOne({ 'interviews._id': interviewId });
     if (!hr) {
       return res.status(404).json({ message: 'Interview not found' });
     }
@@ -294,7 +294,7 @@ exports.getCandidateCompany = async (req, res) => {
     }
     
     // Find the HR that has this candidate
-    const hr = await hrModel.findOne({ 'interviews.candidates.email': email });
+    const hr = await Hr.findOne({ 'interviews.candidates.email': email });
     if (!hr) {
       return res.status(404).json({ message: 'Candidate not found' });
     }
@@ -327,8 +327,15 @@ exports.createInterview = async (req, res) => {
       return res.status(400).json({ message: 'Role and at least one question are required' });
     }
     
-    // Find the HR user
-    const hr = await hrModel.findById(userId);
+    // Find the HR user - handle both string and ObjectId types
+    let hr;
+    try {
+      hr = await mongoose.model('Hr').findById(userId);
+    } catch (idError) {
+      // If userId is not a valid ObjectId, try finding by other means
+      hr = await mongoose.model('Hr').findOne({ email: req.user.email });
+    }
+    
     if (!hr) {
       return res.status(404).json({ message: 'User not found' });
     }

@@ -40,7 +40,7 @@ router.get('/interviews', authHrMiddleware.authHr, async (req, res) => {
     const userId = req.user._id;
     
     // Find the HR user with their interviews
-    const hr = await hrModel.findById(userId);
+    const hr = await Hr.findById(userId);
     if (!hr) {
       return res.status(404).json({ message: 'User not found' });
     }
