@@ -273,7 +273,7 @@ router.get('/get-candidate-company', async (req, res) => {
 router.post('/candidate-register', upload.single('resume'), async (req, res) => {
   try {
     console.log('Candidate register request body:', req.body);
-    const { email, name, phone, answers } = req.body;
+    const { email, name, phone, answers, interviewId } = req.body;
     const resume = req.file ? req.file.path : null;
     
     // Only require email
@@ -284,21 +284,48 @@ router.post('/candidate-register', upload.single('resume'), async (req, res) => 
       });
     }
     
-    // Define real questions
-    const realQuestions = [
-      { 
-        text: "What is your experience with React?", 
-        expectedAnswer: "React is a JavaScript library for building user interfaces, particularly single-page applications. It's used for handling the view layer and allows you to create reusable UI components."
-      },
-      { 
-        text: "Explain the concept of state management in frontend applications.", 
-        expectedAnswer: "State management refers to the management of the application state which includes user inputs, UI state, server responses, etc. Libraries like Redux, MobX, and React Context API help manage state across components."
-      },
-      { 
-        text: "How do you handle API calls in a React application?", 
-        expectedAnswer: "API calls in React can be handled using fetch, Axios, or other HTTP clients. These are typically made in useEffect hooks, component lifecycle methods, or through custom hooks. Async/await is commonly used for cleaner code."
+    // Try to find existing interview with this candidate
+    let existingHr = null;
+    let existingInterview = null;
+    
+    if (interviewId) {
+      existingHr = await Hr.findOne({ 'interviews._id': interviewId });
+      if (existingHr) {
+        existingInterview = existingHr.interviews.find(i => i._id.toString() === interviewId);
       }
-    ];
+    }
+    
+    // If no existing interview found, check if any HR has this candidate
+    if (!existingInterview) {
+      existingHr = await Hr.findOne({ 'interviews.candidates.email': email });
+      if (existingHr) {
+        existingInterview = existingHr.interviews.find(i => i.candidates.some(c => c.email === email));
+      }
+    }
+    
+    // If we found an existing interview, use its questions
+    let realQuestions = [];
+    if (existingInterview && existingInterview.questions && existingInterview.questions.length > 0) {
+      console.log('Using existing interview questions:', existingInterview.questions.map(q => q.text));
+      realQuestions = existingInterview.questions;
+    } else {
+      // Fallback to default questions if no existing interview found
+      console.log('Using default questions');
+      realQuestions = [
+        { 
+          text: "What is your experience with React?", 
+          expectedAnswer: "React is a JavaScript library for building user interfaces, particularly single-page applications. It's used for handling the view layer and allows you to create reusable UI components."
+        },
+        { 
+          text: "Explain the concept of state management in frontend applications.", 
+          expectedAnswer: "State management refers to the management of the application state which includes user inputs, UI state, server responses, etc. Libraries like Redux, MobX, and React Context API help manage state across components."
+        },
+        { 
+          text: "How do you handle API calls in a React application?", 
+          expectedAnswer: "API calls in React can be handled using fetch, Axios, or other HTTP clients. These are typically made in useEffect hooks, component lifecycle methods, or through custom hooks. Async/await is commonly used for cleaner code."
+        }
+      ];
+    }
     
     try {
       // Find or create a demo HR user
@@ -389,7 +416,7 @@ router.post('/candidate-register', upload.single('resume'), async (req, res) => 
       // Continue even if DB operations fail
     }
     
-    // Return success response with real questions from the interview
+    // Return success response with real questions
     return res.json({
       success: true,
       message: 'Candidate registered successfully',
@@ -399,8 +426,8 @@ router.post('/candidate-register', upload.single('resume'), async (req, res) => 
         phone: phone || 'Not provided',
         resumeUploaded: !!resume
       },
-      questions: interview.questions.map(q => ({ text: q.text })),
-      interviewId: interview._id
+      questions: realQuestions.map(q => ({ text: q.text })),
+      interviewId: existingInterview ? existingInterview._id : (interview ? interview._id : null)
     });
     
   } catch (error) {
