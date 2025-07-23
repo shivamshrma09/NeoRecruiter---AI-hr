@@ -15,6 +15,11 @@ const mockRoutes = require('./routes/mock.route');
 const app = express();
 
 // Connect to database
+axios.post('https://neorecruiter-ai-hr.onrender.com/hr/interviews', data, {
+  withCredentials: true,
+});
+
+
 const connectToDatabase = require('./db/db');
 connectToDatabase();
 
