@@ -14,6 +14,8 @@ import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Dashboard from "./components/HomeDashboard";
 import Interview from "./components/Interview";
+import InterviewLink from "./components/InterviewLink";
+import InterviewResults from "./components/InterviewResults";
 import StudentInterview from "./components/StudentInterview";
 import LandingPage from "./components/LandingPage";
 import Charts from "./components/Charts";
@@ -41,6 +43,8 @@ function AppContent() {
         }
       />
       <Route path="/interview" element={<Interview />} />
+      <Route path="/interview-link" element={<InterviewLink />} />
+      <Route path="/interview-results/:id" element={<InterviewResults />} />
       <Route path="/student-interview" element={<StudentInterview />} />
       <Route path="/landing" element={<LandingPage />} />
       <Route path="/Charts" element={<Charts />} />

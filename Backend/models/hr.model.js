@@ -31,7 +31,9 @@ const candidateSchema = new mongoose.Schema({
   status: { type: String, default: "pending" },
   cheatingDetected: { type: Boolean, default: false },
   cheatingFlags: [String],
-  completedAt: Date
+  completedAt: Date,
+  accessToken: String,
+  lastReminderSent: Date
 });
 
 const interviewSchema = new mongoose.Schema({

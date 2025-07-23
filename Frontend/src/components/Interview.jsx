@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   FaUserTie, FaEnvelope, FaPhone, FaFileAlt, FaDesktop, FaMicrophone, FaCheckCircle, FaRobot, FaShieldAlt, FaExclamationTriangle, FaInfoCircle, FaVideo, FaBell, FaMicrophoneSlash, FaPaperPlane, FaUser
 } from "react-icons/fa";
+import { getDemoToken, validateDemoToken, storeDemoToken, getStoredDemoToken } from "../utils/demoUtils";
 import { Link } from "react-router-dom";
 
 const API_BASE_URL = "https://neorecruiter-ai-hr.onrender.com";
@@ -185,6 +186,26 @@ export default function Interview() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [candidateEmail]);
+  
+  // Check for stored demo token on component mount
+  useEffect(() => {
+    const storedDemoData = getStoredDemoToken();
+    if (storedDemoData && !candidateEmail) {
+      setCandidateEmail(storedDemoData.email);
+      
+      // Validate the stored token
+      const validateToken = async () => {
+        const result = await validateDemoToken(storedDemoData.email, storedDemoData.token);
+        if (result.success) {
+          console.log('Demo token validated successfully');
+        } else {
+          console.error('Demo token validation failed:', result.error);
+        }
+      };
+      
+      validateToken();
+    }
+  }, []);
 
   useEffect(() => {
     if (!candidateEmail) return;
@@ -409,6 +430,18 @@ export default function Interview() {
 
     const currentQuestionObj = questions[currentQ] || {};
     const { text, expectedAnswer } = currentQuestionObj;
+    
+    // Get demo token if needed
+    const storedDemoData = getStoredDemoToken();
+    let accessToken = storedDemoData?.token;
+    
+    if (!accessToken) {
+      const tokenResult = await getDemoToken(candidateEmail);
+      if (tokenResult.success) {
+        accessToken = tokenResult.token;
+        storeDemoToken(candidateEmail, accessToken);
+      }
+    }
 
     const { ok, data } = await apiPost("/hr/save-answer", {
       email: candidateEmail,
@@ -416,7 +449,8 @@ export default function Interview() {
       questionIndex: currentQ,
       question: text,
       expectedAnswer: expectedAnswer,
-      cheatingFlags: cheatingFlags
+      cheatingFlags: cheatingFlags,
+      accessToken: accessToken
     });
 
     if (!ok) {
