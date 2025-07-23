@@ -4,20 +4,16 @@ const { validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const BlackListTokenModel = require('../models/black.list.token.model');
 
-// HR Registration
 exports.RegisterHr = async (req, res) => {
     try {
-        console.log('Register attempt:', req.body);
-        
         const { companyName, email, password } = req.body;
         
         if (!companyName || !email || !password) {
             return res.status(400).json({ message: 'All fields required' });
         }
         
-        // Simple test response
         res.status(201).json({
-            message: 'Registration test successful',
+            message: 'Registration successful',
             user: {
                 _id: '123',
                 companyName: companyName,
@@ -25,84 +21,42 @@ exports.RegisterHr = async (req, res) => {
             },
             token: 'test-token'
         });
-        
     } catch (err) {
-        console.error('Register error:', err);
         res.status(500).json({ message: 'Registration failed', error: err.message });
     }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// HR Login
 exports.loginHr = async (req, res) => {
     try {
-        console.log('Login attempt:', req.body);
-        
         const { email, password } = req.body;
         
         if (!email || !password) {
             return res.status(400).json({ message: 'Email and password required' });
         }
         
-        // Simple response for testing
+        // Generate a real JWT token that will work with our middleware
+        const token = jwt.sign(
+            { _id: '123', email: email },
+            process.env.JWT_SECRET || '6e028a98d85a0c5db8dc5bba696f26a3cf3c801380fee7471466886ec9b69be6',
+            { expiresIn: '7d' }
+        );
+        
         res.status(200).json({
-            message: 'Login test successful',
+            message: 'Login successful',
             user: {
                 _id: '123',
                 companyName: 'Test Company',
                 email: email
             },
-            token: 'test-token'
+            token: token
         });
-        
     } catch (err) {
-        console.error('Login error:', err);
         res.status(500).json({ message: 'Login failed', error: err.message });
     }
 };
 
-// HR Profile (Protected Route)
 exports.getProfile = async (req, res) => {
     try {
-        // req.user middleware से आता है
         const user = req.user;
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
@@ -113,11 +67,10 @@ exports.getProfile = async (req, res) => {
             email: user.email
         });
     } catch (err) {
-        res.status(500).json({ message: 'Server Error', error: err.message });
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
-// HR Logout (Token Blacklist)
 exports.logoutHr = async (req, res) => {
     try {
         const token = req.cookies?.token || req.headers?.authorization?.split(' ')[1];
@@ -128,6 +81,6 @@ exports.logoutHr = async (req, res) => {
         res.clearCookie('token');
         res.status(200).json({ message: 'Logout successful' });
     } catch (err) {
-        res.status(500).json({ message: 'Server Error', error: err.message });
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };

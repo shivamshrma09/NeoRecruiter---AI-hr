@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-// 1. सबसे पहले scoreSchema
 const scoreSchema = new mongoose.Schema({
   Relevance: String,
   ContentDepth: String,
@@ -10,18 +9,16 @@ const scoreSchema = new mongoose.Schema({
   Sentiment: String,
   skillcorrect: String,
   overallscore: String,
-  aiFeedback: String,      // <-- AI's feedback/analysis (optional)
-  improvement: String      // <-- AI's improvement suggestion (optional)
+  aiFeedback: String,      
+  improvement: String     
 });
 
 
-// 2. फिर questionSchema
 const questionSchema = new mongoose.Schema({
   text: String,
   expectedAnswer: String,
 });
 
-// 3. फिर candidateSchema (अब scoreSchema use कर सकते हैं)
 const candidateSchema = new mongoose.Schema({
   email: String,
   name: String,
@@ -37,7 +34,6 @@ const candidateSchema = new mongoose.Schema({
   completedAt: Date
 });
 
-// 4. interviewSchema
 const interviewSchema = new mongoose.Schema({
   role: { type: String, required: true },
   technicalDomain: { type: String },
@@ -46,7 +42,6 @@ const interviewSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
-// 5. hrSchema
 const hrSchema = new mongoose.Schema({
   companyName: {
     type: String,
@@ -62,14 +57,13 @@ const hrSchema = new mongoose.Schema({
     facebook: String,
     instagram: String,
   },
-  interviews: [interviewSchema], // <-- Array of interview objects
+  interviews: [interviewSchema], 
   interviewCount: { type: Number, default: 0 },
   interviewCountCandidate: { type: Number, default: 0 },
   createdAt: { type: Date, default: Date.now },
   Balance: { type: Number, default: 1000 },
 });
 
-// Methods
 hrSchema.methods.generateAuthToken = function () {
   return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
     expiresIn: "1d",

@@ -6,6 +6,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const connectToDatabase = require('./db/db');
 const hrRoutes = require('./routes/hr.route');
+const aiRoutes = require('./routes/ai.route');
 
 const app = express();
 
@@ -17,13 +18,13 @@ app.use(cors({
       'https://neo-recruiter-ai-hr.vercel.app',
       'https://neorecruiter.vercel.app',
       'http://localhost:3000',
+      'https://neorecruiter.vercel.app/',
       'http://localhost:5173'
     ];
-    
     if (!origin || allowedOrigins.includes(origin) || (origin && origin.includes('vercel.app'))) {
       callback(null, true);
     } else {
-      callback(null, true); // Allow all for now
+      callback(null, true);
     }
   },
   credentials: true,
@@ -31,16 +32,15 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
 }));
 
-app.options('*', cors());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 app.get('/', (req, res) => {
-  res.send('NeoRecruiter Backend API - Running Successfully - Updated');
+  res.send('NeoRecruiter Backend API - Running Successfully');
 });
 
 app.use('/hr', hrRoutes);
+app.use('/ai', aiRoutes);
 
 module.exports = app;

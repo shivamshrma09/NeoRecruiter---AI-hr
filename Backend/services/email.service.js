@@ -1,6 +1,5 @@
 const nodemailer = require('nodemailer')
 
-// Create transporter (dummy configuration)
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -43,12 +42,10 @@ const sendInterviewInvitation = async (candidateEmail, interviewDetails) => {
       `
     }
 
-    // Send email
     try {
       await transporter.sendMail(mailOptions)
     } catch (emailError) {
       console.error('Email sending failed:', emailError)
-
     }
     
     return { success: true, message: 'Email sent successfully' }

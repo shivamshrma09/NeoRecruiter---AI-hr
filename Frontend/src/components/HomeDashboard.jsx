@@ -33,7 +33,6 @@ import { UserDataContext } from "../context/UserContext"
 import api from "../utils/api"
 import AnalyticsDashboard from './Charts'
 
-// --- Dashboard Home ---
 function DashboardHome({ onCreateNewInterview }) {
   const { user } = useContext(UserDataContext)
   const [stats, setStats] = useState({ interviews: 0, candidates: 0, avgScore: 0 })
@@ -159,7 +158,6 @@ function DashboardHome({ onCreateNewInterview }) {
   )
 }
 
-// --- Create Interview Multi-Step Form ---
 function CreateInterviewForm({ onComplete }) {
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
@@ -558,7 +556,6 @@ function CreateInterviewForm({ onComplete }) {
   )
 }
 
-// --- Schedules ---
 function Schedules() {
   const [interviews, setInterviews] = useState([])
   const [loading, setLoading] = useState(true)

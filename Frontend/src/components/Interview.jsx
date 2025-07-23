@@ -4,7 +4,7 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:3000";
+const API_BASE_URL = "https://neorecruiter-ai-hr.onrender.com";
 async function apiPost(path, body, isFormData = false) {
   const options = {
     method: "POST",
@@ -54,7 +54,6 @@ function Notification({ message, type, onClose }) {
   );
 }
 
-// -------------------- ScreenRecorder Component --------------------
 function ScreenRecorder({ candidateEmail, disabled, setNotification }) {
   const [recording, setRecording] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -142,7 +141,6 @@ function ScreenRecorder({ candidateEmail, disabled, setNotification }) {
 
 
 
-// -------------------- StepperItem Component --------------------
 const StepperItem = ({ icon: Icon, label, isActive }) => (
   <div className="flex flex-col items-center mx-3">
     <div className={`w-12 h-12 flex items-center justify-center rounded-full text-xl font-bold shadow-lg border-2
@@ -154,9 +152,7 @@ const StepperItem = ({ icon: Icon, label, isActive }) => (
   </div>
 );
 
-// -------------------- Main Component --------------------                                   
 export default function Interview() {
-  // -------------------- State --------------------
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({ name: "", email: "", phone: "", resume: null });
   const [permissions, setPermissions] = useState({ screen: false, microphone: false, camera: false, notifications: false });
@@ -178,7 +174,6 @@ export default function Interview() {
   const recognitionRef = useRef(null);
   const messagesEndRef = useRef(null);
 
-  // -------------------- Tab Switch/Minimize Detection --------------------
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden && candidateEmail) {
@@ -191,7 +186,6 @@ export default function Interview() {
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [candidateEmail]);
 
-  // -------------------- Copy/Paste/Cut Logging --------------------
   useEffect(() => {
     if (!candidateEmail) return;
     const handleCopy = () => {
@@ -216,78 +210,94 @@ export default function Interview() {
     };
   }, [candidateEmail]);
 
-  // -------------------- Scroll to bottom --------------------
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // -------------------- Notification Helpers --------------------
   const showNotification = useCallback((message, type = 'info') => setNotification({ message, type }), []);
   const clearNotification = useCallback(() => setNotification({ message: '', type: '' }), []);
 
-  // -------------------- Candidate Form Handler --------------------
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setForm((f) => ({ ...f, [name]: files ? files[0] : value }));
     clearNotification();
   };
 
-  // -------------------- Permission Checkbox Handler --------------------
   const handlePermissionChange = (e) => {
     const { name, checked } = e.target;
     setPermissions((prev) => ({ ...prev, [name]: checked }));
     clearNotification();
   };
 
-  // -------------------- Registration Handler --------------------
   const handleRegister = async (e) => {
     e.preventDefault();
     clearNotification();
     setRegistering(true);
+    
     if (!form.name || !form.email || !form.phone || !form.resume) {
       showNotification("All fields are required for registration.", "error");
       setRegistering(false);
       return;
     }
     
-    // First get company info
-    const { ok: companyOk, data: companyData } = await apiPost("/hr/get-candidate-company", { email: form.email });
-    if (!companyOk) {
-      showNotification("No interview found for this email address. Please check your email or contact HR.", "error");
-      setRegistering(false);
-      return;
-    }
-    
-    setCompanyInfo(companyData);
-    
-    const formData = new FormData();
-    formData.append("name", form.name);
-    formData.append("email", form.email);
-    formData.append("phone", form.phone);
-    formData.append("resume", form.resume);
-    const { ok, data } = await apiPost("/hr/candidate-register", formData, true);
-    if (!ok) {
-      if (data.msg === "You have already completed the interview.") {
-        setInterviewCompleted(true);
-        showNotification("You have already completed the interview. Thank you!", "info");
-      } else {
-        showNotification(data.msg || "Candidate registration failed. Please try again.", "error");
+    try {
+      console.log('Verifying candidate:', form.email);
+      
+      // Step 1: Check if candidate exists in database
+      const { ok: companyOk, data: companyData } = await apiPost("/hr/get-candidate-company", { email: form.email });
+      
+      if (!companyOk) {
+        showNotification(`No interview invitation found for ${form.email}. Please check your email or contact HR.`, "error");
+        setRegistering(false);
+        return;
       }
-    } else if (!data.questions || data.questions.length === 0) {
-      showNotification("No interview questions found for this candidate. Please contact support.", "error");
-    } else {
-      setQuestions(data.questions);
+      
+      console.log('Candidate verified, company info:', companyData);
+      setCompanyInfo(companyData);
+      
+      // Step 2: Register candidate with details
+      const formData = new FormData();
+      formData.append("name", form.name);
+      formData.append("email", form.email);
+      formData.append("phone", form.phone);
+      formData.append("resume", form.resume);
+      
+      const { ok: registerOk, data: registerData } = await apiPost("/hr/candidate-register", formData, true);
+      
+      if (!registerOk) {
+        if (registerData.msg === "You have already completed the interview.") {
+          setInterviewCompleted(true);
+          showNotification("You have already completed the interview. Thank you!", "info");
+        } else {
+          showNotification(registerData.msg || "Registration failed. Please try again.", "error");
+        }
+        setRegistering(false);
+        return;
+      }
+      
+      if (!registerData.questions || registerData.questions.length === 0) {
+        showNotification("No interview questions found. Please contact support.", "error");
+        setRegistering(false);
+        return;
+      }
+      
+      // Success - proceed to permissions
+      setQuestions(registerData.questions);
       setCandidateEmail(form.email);
       setCurrentQ(0);
       setMessages([]);
       setInterviewCompleted(false);
       setStep(2);
-      showNotification("Registration successful! Please grant necessary permissions.", "success");
+      showNotification("Verification successful! Please grant necessary permissions.", "success");
+      
+    } catch (error) {
+      console.error('Registration Error:', error);
+      showNotification("Unable to connect to server. Please try again later.", "error");
     }
+    
     setRegistering(false);
   };
 
-  // -------------------- Permissions Handler --------------------
   const handleAllowPermissions = async () => {
     clearNotification();
     setRequestingPermissions(true);
@@ -314,7 +324,6 @@ export default function Interview() {
     setRequestingPermissions(false);
   };
 
-  // -------------------- Interview: Fullscreen and Cleanup --------------------
   useEffect(() => {
     const enterFullscreen = () => {
       const elem = document.documentElement;
@@ -334,7 +343,6 @@ export default function Interview() {
     };
   }, [step, showNotification]);
 
-  // -------------------- Interview: Bot Speaks Question --------------------
   useEffect(() => {
     if (step !== 3 || interviewCompleted || questions.length === 0) return;
     if (currentQ < questions.length) {
@@ -387,7 +395,6 @@ export default function Interview() {
     }
   }, [currentQ, questions, step, interviewCompleted, showNotification]);
 
-  // -------------------- Interview: Answer Submission --------------------
   const handleSendAnswer = async (e) => {
     e.preventDefault();
     clearNotification();
@@ -439,7 +446,6 @@ export default function Interview() {
     setWaitingForAnswer(false);
   };
 
-  // -------------------- Interview: Speech-to-text --------------------
   const startListening = () => {
     clearNotification();
     if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
@@ -473,17 +479,14 @@ export default function Interview() {
     recognitionRef.current = recognition;
   };
 
-  // -------------------- Stepper Data --------------------
   const steps = [
     { label: "Verification", icon: FaUserTie },
     { label: "Permissions", icon: FaDesktop },
     { label: "Interview", icon: FaRobot }
   ];
 
-  // -------------------- Render --------------------
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header and Stepper */}
       {(step === 1 || step === 2) && (
         <>
           <header className="w-full flex items-center justify-between px-6 py-4 bg-white/80 shadow-md z-10 sticky top-0">
@@ -504,16 +507,13 @@ export default function Interview() {
         </>
       )}
 
-      {/* Global Notification Display */}
       <Notification
         message={notification.message}
         type={notification.type}
         onClose={clearNotification}
       />
 
-      {/* Main Content Area */}
       <main className="flex-1 flex flex-col items-center justify-center w-full px-4 py-6">
-        {/* Step 1: Candidate Form */}
         {step === 1 && (
           <form
             onSubmit={handleRegister}
@@ -603,7 +603,6 @@ export default function Interview() {
           </form>
         )}
 
-        {/* Step 2: Permissions */}
         {step === 2 && (
           <div className="bg-white p-10 rounded-3xl shadow-2xl max-w-md mx-auto w-full text-center space-y-6 border border-blue-200 animate-fade-in" aria-labelledby="permissions-heading">
             <h2 id="permissions-heading" className="text-3xl font-extrabold text-blue-800 mb-4 flex items-center justify-center gap-2">
@@ -682,21 +681,17 @@ export default function Interview() {
           </div>
         )}
 
-        {/* Step 3: Interview Fullscreen */}
         {step === 3 && (
           <div className="w-full h-screen bg-white flex flex-col">
-            {/* Company Header */}
             <div className="bg-blue-700 text-white p-4 flex justify-between items-center">
               <h1 className="text-xl font-bold">
                 {companyInfo ? `${companyInfo.companyName} - AI Interview` : "AI Interview"}
               </h1>
               <div className="flex items-center space-x-4">
                 <ScreenRecorder candidateEmail={candidateEmail} disabled={interviewCompleted} setNotification={showNotification} />
-                {/* NeoAssistant is hidden from candidates */}
               </div>
             </div>
 
-            {/* Chat Interface - Fullscreen */}
             <div className="flex-1 flex flex-col p-6 bg-blue-50">
               <h2 className="text-3xl font-extrabold text-blue-800 mb-4 text-center border-b pb-3 border-blue-200 flex items-center justify-center gap-2">
                 <FaRobot className="text-blue-700" /> AI Interview Chat
@@ -718,7 +713,6 @@ export default function Interview() {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input Area - Always Visible */}
               {interviewCompleted ? (
                 <div className="text-green-700 text-center font-bold mt-4 p-4 bg-green-50 rounded-lg shadow-inner flex items-center justify-center gap-2 text-xl" role="status">
                   <FaCheckCircle /> Interview completed. Thank you for your time!
@@ -757,7 +751,6 @@ export default function Interview() {
         )}
       </main>
 
-      {/* Tailwind CSS custom styles */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
             width: 8px;

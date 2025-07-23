@@ -4,10 +4,10 @@ import {
   FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaFileAlt, FaLightbulb // New icons for added features
 } from "react-icons/fa";
 
-import "tailwindcss/tailwind.css"; // Ensure Tailwind CSS is imported
+import "tailwindcss/tailwind.css"; 
 import { Link } from 'react-router-dom';
+import SEO from './SEO';
 
-// Animated stats
 function AnimatedNumber({ value, duration = 1800 }) {
   const [display, setDisplay] = useState(0);
   useEffect(() => {
@@ -86,17 +86,17 @@ const newFeatures = [
     title: "Security & Privacy",
     desc: "Data encryption, GDPR compliance, candidate consent before recording.",
   },
-  { // New Feature 1
+  { 
     icon: <FaFileAlt className="text-2xl text-blue-700" />,
     title: "Resume Parsing & Matching",
     desc: "Automatically extract key information from resumes and match candidates to job requirements.",
   },
-  { // New Feature 2
+  { 
     icon: <FaCalendarAlt className="text-2xl text-blue-900" />,
     title: "Interview Scheduling Automation",
     desc: "Seamlessly schedule interviews directly from your dashboard, minimizing manual coordination.",
   },
-  { // New Feature 3
+  { 
     icon: <FaLightbulb className="text-2xl text-blue-700" />,
     title: "Advanced Analytics & Insights",
     desc: "Gain data-driven insights into your hiring pipeline, identify bottlenecks, and optimize strategies.",
@@ -150,7 +150,6 @@ const logos = [
   "https://huggingface.co/front/assets/huggingface_logo-noborder.svg"
 ];
 
-// Pricing Plans Data
 const pricingPlans = [
   {
     name: "Basic",
@@ -169,7 +168,7 @@ const pricingPlans = [
       { text: "Custom Question Templates", included: false },
     ],
     buttonText: "Start Free Trial",
-    buttonLink: "/signup", // Link to signup for basic
+    buttonLink: "/signup", 
     buttonClass: "bg-blue-700 hover:bg-blue-800",
   },
   {
@@ -189,9 +188,9 @@ const pricingPlans = [
       { text: "Custom Question Templates", included: true },
     ],
     buttonText: "Get Started",
-    buttonLink: "/signup", // Link to signup for pro
-    buttonClass: "bg-blue-900 hover:bg-blue-700", // Darker for emphasis
-    highlight: true, // For a "most popular" tag
+    buttonLink: "/signup", 
+    buttonClass: "bg-blue-900 hover:bg-blue-700", 
+    highlight: true, 
   },
   {
     name: "Enterprise",
@@ -210,7 +209,7 @@ const pricingPlans = [
       { text: "On-demand Training & Support", included: true },
     ],
     buttonText: "Contact Us",
-    buttonLink: "#contact", // Scroll to contact section or open contact modal
+    buttonLink: "#contact", 
     buttonClass: "bg-blue-700 hover:bg-blue-800",
   },
 ];
@@ -221,11 +220,11 @@ export default function Home() {
   const [newsletter, setNewsletter] = useState("");
   const [newsletterMsg, setNewsletterMsg] = useState("");
   const [showDemo, setShowDemo] = useState(false);
-  const [demoJobDescription, setDemoJobDescription] = useState(""); // State for demo modal textarea
-  const [generatedQuestions, setGeneratedQuestions] = useState([]); // State for generated questions
-  const [isGenerating, setIsGenerating] = useState(false); // Loading state for demo generator
+  const [demoJobDescription, setDemoJobDescription] = useState(""); 
+  const [generatedQuestions, setGeneratedQuestions] = useState([]); 
+  const [isGenerating, setIsGenerating] = useState(false); 
 
-  const [showBookDemo, setShowBookDemo] = useState(false); // State for Book a Demo modal
+  const [showBookDemo, setShowBookDemo] = useState(false); 
   const [bookDemoForm, setBookDemoForm] = useState({ name: '', email: '', message: '' });
   const [bookDemoMsg, setBookDemoMsg] = useState("");
 
@@ -240,19 +239,18 @@ export default function Home() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Intersection Observer for "How It Works" animation
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setHowItWorksVisible(true);
-            observer.unobserve(entry.target); // Stop observing once visible
+            observer.unobserve(entry.target); 
           }
         });
       },
       {
-        threshold: 0.2, // Trigger when 20% of the section is visible
+        threshold: 0.2, 
       }
     );
 
@@ -277,14 +275,12 @@ export default function Home() {
 
   const generateQuestions = async () => {
     setIsGenerating(true);
-    setGeneratedQuestions([]); // Clear previous questions
-    setDemoJobDescription("Generating questions based on your description..."); // Show loading message
+    setGeneratedQuestions([]);
+    setDemoJobDescription("Generating questions based on your description..."); 
 
-    // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Replace with actual API call to your AI model
-    // For demo, we'll just set some sample questions
+    
     const sample = [
       "Describe your experience with scalable cloud infrastructure and DevOps practices.",
       "How do you approach securing sensitive data in a web application?",
@@ -292,24 +288,28 @@ export default function Home() {
       "What are your strengths in project management and team collaboration?",
     ];
     setGeneratedQuestions(sample);
-    setDemoJobDescription("Generated questions:"); // Reset input area message
+    setDemoJobDescription("Generated questions:"); 
     setIsGenerating(false);
   };
 
   const handleBookDemoSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically send this data to your backend
     console.log("Book Demo Form Submitted:", bookDemoForm);
     setBookDemoMsg("Thank you! We've received your request and will contact you shortly.");
-    setBookDemoForm({ name: '', email: '', message: '' }); // Clear form
+    setBookDemoForm({ name: '', email: '', message: '' }); 
     await new Promise(resolve => setTimeout(resolve, 3000));
     setShowBookDemo(false);
-    setBookDemoMsg(""); // Clear message after modal closes
+    setBookDemoMsg(""); 
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50">
-      {/* Header */}
+      <SEO 
+        title="NeoRecruiter - AI-Powered Interview Platform | Smart Hiring Solution"
+        description="Transform your hiring process with NeoRecruiter's AI-powered interview platform. Conduct smart interviews, get instant candidate analysis, and make data-driven hiring decisions. Try free with ₹1000 bonus!"
+        keywords="AI interview, hiring platform, recruitment software, candidate screening, HR technology, interview automation, talent acquisition, smart hiring, AI recruiter, video interview, free trial"
+        url="/"
+      />
       <header className="w-full flex justify-between items-center px-6 py-4 border-b bg-white/80 backdrop-blur-sm shadow-md z-10 sticky top-0">
         <div className="text-2xl font-black tracking-tight select-none flex items-center space-x-1">
           <span className="text-white bg-gradient-to-r from-blue-700 to-blue-900 px-2 py-1 rounded-l-xl shadow-md animate-fade-in">
@@ -322,14 +322,11 @@ export default function Home() {
         <nav className="flex gap-3">
           <Link to="/login" className="px-4 py-2 rounded-lg hover:bg-blue-100 font-semibold text-blue-700 transition duration-300">Login</Link>
           <Link to="/signup" className="px-4 py-2 rounded-lg hover:bg-blue-100 font-semibold text-blue-700 transition duration-300">Signup</Link>
-          <Link to="/docs" className="px-4 py-2 rounded-lg hover:bg-blue-100 font-semibold text-blue-700 transition duration-300">Docs</Link>
-          <button className="px-4 py-2 rounded-lg bg-blue-900 text-white font-semibold shadow-lg hover:bg-blue-700 transition duration-300" onClick={() => setShowDemo(true)}>
-            Try AI Question Generator
-          </button>
+          <Link to="/student-interview" className="px-4 py-2 rounded-lg bg-green-600 text-white font-semibold shadow-lg hover:bg-green-700 transition duration-300">Student Interview</Link>
+         
         </nav>
       </header>
 
-      {/* Signup Bonus Banner */}
       <div className="w-full bg-gradient-to-r from-green-500 to-blue-600 text-white py-4 px-6 text-center animate-pulse">
         <div className="flex items-center justify-center gap-3 text-lg font-bold">
           <span className="text-2xl">🎉</span>
@@ -341,7 +338,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Hero Section */}
       <main className="flex flex-col flex-1 items-center justify-center px-4">
         <div className="mt-16 mb-10 text-center animate-fade-in-up max-w-4xl">
           <h1 className="text-5xl md:text-7xl font-extrabold mb-4 select-none drop-shadow-lg">
@@ -360,14 +356,13 @@ export default function Home() {
           </p>
         </div>
 
-        {/* CTA Form - Enlarged input */}
         <form
           className="relative w-full max-w-3xl mt-6 animate-fade-in"
           onSubmit={e => {
             e.preventDefault();
-            setDemoJobDescription(input); // Set input to demo modal's textarea
+            setDemoJobDescription(input); 
             setShowDemo(true);
-            generateQuestions(); // Trigger generation when form is submitted
+            generateQuestions(); 
           }}
         >
           <textarea
@@ -412,10 +407,8 @@ export default function Home() {
 
         ---
 
-        {/* Demo Video & Project Description - Refined content */}
         <section className="w-full max-w-6xl mx-auto my-16 px-4">
           <div className="flex flex-col md:flex-row items-center gap-10">
-            {/* Left: Project Description */}
             <div className="md:w-1/2 text-left animate-fade-in-up">
               <h2 className="text-3xl font-bold text-blue-700 mb-6">
                 Revolutionize Your Hiring with AI Interviews
@@ -440,13 +433,11 @@ export default function Home() {
                 </li>
               </ul>
             </div>
-            {/* Right: Demo Video */}
             <div className="md:w-1/2 flex justify-center items-center animate-fade-in">
               <div className="relative w-full pb-[56.25%] h-0 rounded-xl overflow-hidden shadow-2xl border-4 border-blue-200">
-                {/* Replace YOUR_VIDEO_ID with your actual YouTube video ID */}
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ" // Example: Replace with your actual video ID
+                  src="https://youtube.com/shorts/uEn8TWCBA9s?feature=shared" 
                   title="NeoRecruiter Demo Video"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -460,7 +451,6 @@ export default function Home() {
 
         ---
 
-        {/* How We Work - Step-wise animation */}
         <section ref={howItWorksRef} className="w-full max-w-5xl mt-8 mb-10 px-2">
           <h2 className="text-2xl md:text-3xl font-bold text-blue-700 mb-8 text-center animate-fade-in-up">
             How It Works
@@ -482,135 +472,55 @@ export default function Home() {
           </div>
         </section>
 
-        ---
-
-        {/* Key Features Section - Enhanced Design */}
-        <section className="w-full max-w-6xl my-12 px-2 py-8 bg-blue-50 rounded-2xl shadow-inner border border-blue-200 animate-fade-in-up">
+        <section className="w-full max-w-6xl my-12 px-2 py-8 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-inner border border-blue-200 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-extrabold text-blue-700 mb-10 text-center">
             Unlock the Power of NeoRecruiter
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
-            {newFeatures.map((feature, idx) => (
+            {newFeatures.slice(0, 6).map((feature, idx) => (
               <div
                 key={feature.title}
-                className="bg-white rounded-xl shadow-xl p-8 flex flex-col items-center text-center transform hover:scale-105 transition duration-300 border-t-4 border-blue-700" // Added top border
+                className="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center text-center transform hover:scale-105 transition duration-300 border-t-4 border-blue-700"
                 style={{ animationDelay: `${idx * 0.1}s` }}
               >
-                <div className="mb-4 text-5xl transform group-hover:scale-110 transition duration-300">{feature.icon}</div> {/* Increased icon size */}
-                <h3 className="font-bold text-blue-900 text-xl mb-3">{feature.title}</h3> {/* Increased title size */}
-                <p className="text-gray-700 text-base leading-relaxed">{feature.desc}</p>
+                <div className="mb-4 text-4xl text-blue-700">{feature.icon}</div>
+                <h3 className="font-bold text-blue-900 text-lg mb-2">{feature.title}</h3>
+                <p className="text-gray-700 text-sm leading-relaxed">{feature.desc}</p>
               </div>
             ))}
           </div>
-        </section>
-
-        ---
-
-        {/* Pricing Plans Section */}
-        <section className="w-full max-w-6xl mx-auto my-16 px-4 py-8">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-blue-700 mb-12 text-center">
-            Flexible Pricing for Every Team
-          </h2>
-          <div className="grid md:grid-cols-3 gap-8 items-stretch">
-            {pricingPlans.map((plan, idx) => (
-              <div
-                key={plan.name}
-                className={`bg-white rounded-2xl shadow-2xl p-8 flex flex-col border-4 ${
-                  plan.highlight ? "border-blue-700 scale-105" : "border-blue-100"
-                } transform hover:scale-105 transition-all duration-300 relative`}
-              >
-                {plan.highlight && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-700 text-white text-xs font-bold px-4 py-1 rounded-full shadow-lg">
-                    MOST POPULAR
-                  </span>
-                )}
-                <h3 className="text-3xl font-bold text-blue-900 mb-2 text-center">
-                  {plan.name}
-                </h3>
-                <p className="text-gray-600 text-center mb-6">{plan.description}</p>
-                <div className="text-center mb-8">
-                  <span className="text-5xl font-extrabold text-blue-700">
-                    {plan.price}
-                  </span>
-                  {plan.per && (
-                    <span className="text-xl font-medium text-gray-500">
-                      {plan.per}
-                    </span>
-                  )}
-                </div>
-                <ul className="flex-grow space-y-3 mb-8">
-                  {plan.features.map((feature, fIdx) => (
-                    <li key={fIdx} className="flex items-center text-gray-800">
-                      {feature.included ? (
-                        <FaCheckCircle className="text-green-500 mr-3 text-xl" />
-                      ) : (
-                        <FaTimesCircle className="text-gray-400 mr-3 text-xl" />
-                      )}
-                      <span className={`${!feature.included ? "line-through text-gray-500" : ""}`}>
-                        {feature.text}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-                {plan.buttonLink.startsWith('/') ? (
-                  <Link
-                    to={plan.buttonLink}
-                    className={`w-full py-3 rounded-lg text-white font-bold text-lg shadow-md transition duration-300 text-center ${plan.buttonClass}`}
-                  >
-                    {plan.buttonText}
-                  </Link>
-                ) : (
-                  <button
-                    onClick={() => { if (plan.buttonLink === '#contact') setShowBookDemo(true); }} // Open book demo modal for Enterprise
-                    className={`w-full py-3 rounded-lg text-white font-bold text-lg shadow-md transition duration-300 ${plan.buttonClass}`}
-                  >
-                    {plan.buttonText}
-                  </button>
-                )}
-              </div>
-            ))}
+          <div className="mt-8 text-center">
+            <Link to="/signup" className="inline-block px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold rounded-xl shadow-lg hover:from-blue-700 hover:to-purple-700 transition duration-300 transform hover:scale-105">
+              Get Started Now
+            </Link>
           </div>
-          <p className="text-center text-gray-600 mt-10">
-            Need a custom solution or have more questions? <a href="#" onClick={() => setShowBookDemo(true)} className="text-blue-700 font-semibold hover:underline">Contact our sales team</a>.
-          </p>
         </section>
 
-        ---
-
-        {/* Testimonials Carousel - with Horizontal Scrolling */}
-        <section className="w-full my-12 px-2">
+        {/* Testimonials - Simplified */}
+        <section className="w-full max-w-6xl mx-auto my-12 px-4">
           <h2 className="text-2xl md:text-3xl font-bold text-blue-700 mb-8 text-center">What Our Users Say</h2>
-          <div className="overflow-x-auto whitespace-nowrap py-4 scrollbar-hide">
-            <div className="inline-flex space-x-8 px-4 animate-scroll-left">
-              {testimonials.map((t, i) => (
-                <div key={t.name} className="flex-shrink-0 w-80 bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center border-t-4 border-blue-500 hover:shadow-2xl transition duration-300 transform hover:-translate-y-1">
-                  <img src={t.img} alt={t.name} className="w-20 h-20 rounded-full mb-4 border-3 border-blue-700 ring-4 ring-blue-100 object-cover shadow-md" />
-                  <div className="font-bold text-blue-900 text-lg">{t.name}</div>
-                  <div className="text-sm text-blue-700 mb-3">{t.role}</div>
-                  <div className="text-gray-700 italic text-base">"{t.text}"</div>
-                </div>
-              ))}
-              {/* Duplicate testimonials for continuous scroll effect */}
-              {testimonials.map((t, i) => (
-                <div key={`${t.name}-duplicate-${i}`} className="flex-shrink-0 w-80 bg-white rounded-xl shadow-lg p-8 flex flex-col items-center text-center border-t-4 border-blue-500 hover:shadow-2xl transition duration-300 transform hover:-translate-y-1" aria-hidden="true">
-                  <img src={t.img} alt={t.name} className="w-20 h-20 rounded-full mb-4 border-3 border-blue-700 ring-4 ring-blue-100 object-cover shadow-md" />
-                  <div className="font-bold text-blue-900 text-lg">{t.name}</div>
-                  <div className="text-sm text-blue-700 mb-3">{t.role}</div>
-                  <div className="text-gray-700 italic text-base">"{t.text}"</div>
-                </div>
-              ))}
-            </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Only show 3 testimonials */}
+            {testimonials.slice(0, 3).map((t, i) => (
+              <div key={t.name} className="bg-white rounded-xl shadow-md p-6 flex flex-col items-center text-center hover:shadow-lg transition duration-300">
+                <img src={t.img} alt={t.name} className="w-16 h-16 rounded-full mb-3 border-2 border-blue-700 object-cover" />
+                <div className="font-bold text-blue-900 text-lg">{t.name}</div>
+                <div className="text-sm text-blue-700 mb-2">{t.role}</div>
+                <div className="text-gray-700 italic text-sm">"{t.text}"</div>
+              </div>
+            ))}
           </div>
         </section>
 
-        ---
-
-        {/* Social Proof / Logos */}
-        <div className="flex flex-wrap justify-center gap-8 mt-10 mb-10">
-          {logos.map((logo, i) => (
-            <img key={i} src={logo} alt="logo" className="h-12 w-auto grayscale hover:grayscale-0 transition-all duration-300 opacity-80 hover:opacity-100" />
-          ))}
-        </div>
+        {/* Technology Partners - Simplified */}
+        <section className="w-full max-w-4xl mx-auto my-12 px-4">
+          <h2 className="text-xl font-bold text-gray-600 mb-6 text-center">Powered By</h2>
+          <div className="flex flex-wrap justify-center gap-8">
+            {logos.map((logo, i) => (
+              <img key={i} src={logo} alt="Technology Partner" className="h-10 w-auto grayscale hover:grayscale-0 transition-all duration-300 opacity-70 hover:opacity-100" />
+            ))}
+          </div>
+        </section>
 
         ---
 
@@ -642,67 +552,54 @@ export default function Home() {
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="relative bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 text-gray-800 pt-20 mt-20 text-base rounded-t-3xl shadow-2xl border-t border-blue-200 overflow-hidden">
-        <div className="flex flex-wrap justify-between max-w-[1200px] mx-auto px-6 gap-6 pt-16">
-          <div className="flex-1 min-w-[180px] mb-6 bg-white/80 rounded-xl shadow-lg p-6 border border-blue-200 hover:shadow-2xl hover:-translate-y-1 transition duration-300">
-            <h4 className="text-blue-700 mb-2 text-base font-bold tracking-wide">Quick Links</h4>
-            <ul className="list-none p-0 m-0">
-              <li className="mb-2 hover:text-blue-900 cursor-pointer transition duration-300"><Link to="/">Home</Link></li>
-              <li className="mb-2 hover:text-blue-900 cursor-pointer transition duration-300"><a href="#features">Features</a></li>
-              <li className="mb-2 hover:text-blue-900 cursor-pointer transition duration-300"><a href="#pricing">Pricing</a></li>
-              <li className="mb-2 hover:text-blue-900 cursor-pointer transition duration-300"><Link to="/docs">Docs</Link></li>
-              <li className="mb-2 hover:text-blue-900 cursor-pointer transition duration-300"><a href="#about">About</a></li>
-            </ul>
+      {/* Footer - Simplified */}
+      <footer className="bg-white border-t border-gray-200 py-10 mt-10">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div>
+              <h4 className="text-blue-700 font-bold mb-4">Quick Links</h4>
+              <ul className="space-y-2">
+                <li><Link to="/" className="text-gray-600 hover:text-blue-700">Home</Link></li>
+                <li><Link to="/student-interview" className="text-gray-600 hover:text-blue-700">Student Interview</Link></li>
+                <li><Link to="/login" className="text-gray-600 hover:text-blue-700">Login</Link></li>
+                <li><Link to="/signup" className="text-gray-600 hover:text-blue-700">Sign Up</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-blue-700 font-bold mb-4">Legal</h4>
+              <ul className="space-y-2">
+                <li><Link to="/terms" className="text-gray-600 hover:text-blue-700">Terms & Conditions</Link></li>
+                <li><Link to="/privacy" className="text-gray-600 hover:text-blue-700">Privacy Policy</Link></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-blue-700 font-bold mb-4">Contact</h4>
+              <ul className="space-y-2">
+                <li className="flex items-center"><FaEnvelope className="text-blue-700 mr-2" /> <span className="text-gray-600">support@neorecruiter.ai</span></li>
+                <li className="flex items-center"><FaPhone className="text-blue-700 mr-2" /> <span className="text-gray-600">+91-9000000000</span></li>
+              </ul>
+            </div>
+            
+            <div>
+              <h4 className="text-blue-700 font-bold mb-4">Follow Us</h4>
+              <div className="flex space-x-4">
+                <a href="#" className="text-gray-400 hover:text-blue-700 text-xl"><FaLinkedin /></a>
+                <a href="#" className="text-gray-400 hover:text-blue-700 text-xl"><FaTwitter /></a>
+                <a href="#" className="text-gray-400 hover:text-blue-700 text-xl"><FaFacebook /></a>
+              </div>
+            </div>
           </div>
-          <div className="flex-1 min-w-[180px] mb-6 bg-white/80 rounded-xl shadow-lg p-6 border border-blue-200 hover:shadow-2xl hover:-translate-y-1 transition duration-300">
-            <h4 className="text-blue-700 mb-2 text-base font-bold tracking-wide">Legal</h4>
-            <ul className="list-none p-0 m-0">
-              <li className="mb-2 hover:text-blue-900 cursor-pointer transition duration-300"><Link to="/terms">Terms & Conditions</Link></li>
-              <li className="mb-2 hover:text-blue-900 cursor-pointer transition duration-300"><Link to="/privacy">Privacy Policy</Link></li>
-              <li className="mb-2 hover:text-blue-900 cursor-pointer transition duration-300"><Link to="/disclaimer">Disclaimer</Link></li>
-            </ul>
-          </div>
-          <div className="flex-1 min-w-[180px] mb-6 bg-white/80 rounded-xl shadow-lg p-6 border border-blue-200 hover:shadow-2xl hover:-translate-y-1 transition duration-300">
-            <h4 className="text-blue-700 mb-2 text-base font-bold tracking-wide">Contact</h4>
-            <ul className="list-none p-0 m-0">
-              <li className="mb-2 flex items-center gap-2 text-blue-900"><FaEnvelope /> <span className="text-gray-800">support@neorecruiter.ai</span></li>
-              <li className="mb-2 flex items-center gap-2 text-blue-900"><FaPhone /> <span className="text-gray-800">+91-9000000000</span></li>
-              <li className="mb-2 flex items-center gap-2 text-blue-900"><FaMapMarkerAlt /> <span className="text-gray-800">Remote, India</span></li>
-              <li className="mb-2 flex items-center gap-2 text-blue-900"><FaGlobe /> <span className="text-gray-800">www.neorecruiter.ai</span></li>
-            </ul>
-          </div>
-          <div className="flex-1 min-w-[180px] mb-6 bg-white/80 rounded-xl shadow-lg p-6 border border-blue-200 hover:shadow-2xl hover:-translate-y-1 transition duration-300">
-            <h4 className="text-blue-700 mb-2 text-base font-bold tracking-wide">Follow Us</h4>
-            <ul className="list-none p-0 m-0 flex gap-4 mt-2">
-              <li>
-                <a href="#" className="text-blue-900 hover:text-blue-700 text-2xl transition duration-300" aria-label="Instagram"><FaInstagram /></a>
-              </li>
-              <li>
-                <a href="#" className="text-blue-900 hover:text-blue-700 text-2xl transition duration-300" aria-label="LinkedIn"><FaLinkedin /></a>
-              </li>
-              <li>
-                <a href="#" className="text-blue-900 hover:text-blue-700 text-2xl transition duration-300" aria-label="Twitter"><FaTwitter /></a>
-              </li>
-              <li>
-                <a href="#" className="text-blue-900 hover:text-blue-700 text-2xl transition duration-300" aria-label="Facebook"><FaFacebook /></a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="border-t border-blue-200 max-w-[1200px] mx-auto px-6 pt-6 pb-3 text-sm">
-          <h3 className="text-lg font-semibold mb-2 text-blue-700">About NeoRecruiter</h3>
-          <p className="mb-2">
-            NeoRecruiter is a next-gen AI-powered recruitment platform. Automate candidate screening, voice interviews, and instant ranking—empowering recruiters and candidates with the power of AI.
-          </p>
-          <div className="mt-4">
-            <strong>Mission</strong>
-            <p>
-              To make hiring faster, smarter, and bias-free using the latest in conversational AI and analytics.
+          
+          <div className="border-t border-gray-200 mt-8 pt-6 text-center">
+            <p className="text-gray-600 mb-4">
+              NeoRecruiter is a next-gen AI-powered recruitment platform that automates candidate screening, 
+              voice interviews, and instant ranking—empowering recruiters and candidates with the power of AI.
             </p>
-          </div>
-          <div className="mt-4 text-gray-600 text-center text-xs">
-            © {new Date().getFullYear()} NeoRecruiter. All rights reserved.
+            <p className="text-gray-500 text-sm">
+              © {new Date().getFullYear()} NeoRecruiter. All rights reserved.
+            </p>
           </div>
         </div>
       </footer>

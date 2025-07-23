@@ -111,14 +111,10 @@ const StatCard = ({ icon: Icon, title, value, subtitle, color = "blue" }) => {
 };
 
 const AnalyticsDashboard = ({ interviews = [] }) => {
-  console.log('Analytics Dashboard - Interviews data:', interviews);
-  
-  // Calculate analytics data from real interview data
   const totalCandidates = interviews.reduce((sum, interview) => sum + (interview.candidates?.length || 0), 0);
   const completedInterviews = interviews.reduce((sum, interview) => 
     sum + (interview.candidates?.filter(c => c.status === 'completed')?.length || 0), 0);
   
-  // Calculate real average score from actual data
   let totalScores = 0;
   let scoreCount = 0;
   
@@ -137,9 +133,6 @@ const AnalyticsDashboard = ({ interviews = [] }) => {
   
   const avgScore = scoreCount > 0 ? (totalScores / scoreCount) : 0;
   
-  console.log('Calculated avgScore:', avgScore, 'from', scoreCount, 'scores');
-
-  // Score distribution data
   const scoreDistribution = [
     { label: 'Excellent (4-5)', value: 25, color: '#10B981' },
     { label: 'Good (3-4)', value: 45, color: '#3B82F6' },
@@ -147,7 +140,6 @@ const AnalyticsDashboard = ({ interviews = [] }) => {
     { label: 'Poor (1-2)', value: 10, color: '#EF4444' }
   ];
 
-  // Skills analysis data
   const skillsData = [
     { label: 'Technical', value: 78 },
     { label: 'Communication', value: 85 },
@@ -157,7 +149,6 @@ const AnalyticsDashboard = ({ interviews = [] }) => {
 
   return (
     <div className="space-y-6">
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           icon={FaUsers}
@@ -189,7 +180,6 @@ const AnalyticsDashboard = ({ interviews = [] }) => {
         />
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <BarChart data={skillsData} title="Skills Analysis" />
         <PieChart data={scoreDistribution} title="Score Distribution" />

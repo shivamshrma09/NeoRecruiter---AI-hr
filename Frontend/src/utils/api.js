@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL || 'https://neorecruiter-ai-hr.onrender.com',
+  baseURL: 'https://neorecruiter-ai-hr.onrender.com',
   withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
@@ -19,8 +19,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
+      // Don't automatically redirect on 401 errors
+      console.error('Authentication error:', error.response.data);
     }
     return Promise.reject(error);
   }

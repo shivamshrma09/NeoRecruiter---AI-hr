@@ -25,22 +25,28 @@ const UserLogin = () => {
 
       if (response.status === 200) {
         const data = response.data
+        
+        // First store in localStorage
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        
+        // Then update context
         login(data.user, data.token)
+        
+        // Navigate immediately without timeout
         navigate('/Dashboard')
       }
     } catch (err) {
+      console.error('Login error:', err);
       setError(err.response?.data?.message || 'Login failed. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 p-4">
       <div className="bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row w-full max-w-4xl animate-fade-in">
-        {/* Left Section */}
         <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-700 to-blue-900 text-white p-10 flex flex-col justify-center items-center text-center">
           <div className="mb-6">
             <span className="text-6xl font-black tracking-tight select-none flex items-center space-x-2">
@@ -58,7 +64,6 @@ const UserLogin = () => {
           </div>
         </div>
 
-        {/* Right Section: Login Form */}
         <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
           <h2 className="text-3xl font-bold text-blue-900 mb-8 text-center">
             Login to Your Account
@@ -172,7 +177,6 @@ const UserLogin = () => {
           </div>
         </div>
       </div>
-      {/* Animation Styles */}
       <style>{`
         .animate-fade-in {
           animation: fadeIn 1s ease-out forwards;
