@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://neorecruiter-ai-hr-1.onrender.com',
+  baseURL: 'https://neorecruiter-ai-hr.onrender.com',
   withCredentials: true, // Enable credentials for auth cookies
   headers: { 'Content-Type': 'application/json' },
   timeout: 30000 // 30 second timeout
@@ -11,6 +11,11 @@ const api = axios.create({
 const getStoredToken = () => {
   return localStorage.getItem('token');
 };
+
+// Update the base URL if needed based on environment
+if (window.location.hostname === 'neorecruiter.vercel.app') {
+  api.defaults.baseURL = 'https://neorecruiter-ai-hr.onrender.com';
+}
 
 api.interceptors.request.use(
   async (config) => {
