@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 
 import { useContext } from "react";
+import axios from "axios";
 
 import UserContext, { UserDataContext } from "./context/UserContext";
 import PrivateRoute from "./components/PrivateRoute";
@@ -28,6 +29,10 @@ function AppContent() {
     logout();
     navigate("/Login");
   };
+
+  // Remove the test axios call that's causing the error
+  // We'll use the api utility for actual API calls
+
 
   return (
     <Routes>

@@ -34,8 +34,25 @@ module.exports.authHr = async (req, res, next) => {
         try {
             const decoded = jwt.verify(token, jwtSecret);
             
-            // For simplicity, just use the demo user for all authenticated requests
-            req.user = demoHrUser;
+            // Check if token is blacklisted
+            const isBlacklisted = await BlackListTokenModel.findOne({ token });
+            if (isBlacklisted) {
+                return res.status(401).json({ message: 'Token has been invalidated. Please login again.' });
+            }
+            
+            // Special case for demo user
+            if (decoded.email === 'interview123@gmail.com') {
+                req.user = demoHrUser;
+                return next();
+            }
+            
+            // Find user by ID from token
+            const user = await hrModel.findById(decoded._id);
+            if (!user) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+            
+            req.user = user;
             return next();
             
         } catch (tokenError) {

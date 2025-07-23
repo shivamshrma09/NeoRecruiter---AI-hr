@@ -10,6 +10,7 @@ const dashboardRoutes = require('./routes/dashboard.route');
 const interviewRoutes = require('./routes/interview.route');
 const adminRoutes = require('./routes/admin.route');
 const demoRoutes = require('./routes/demo.route');
+const mockRoutes = require('./routes/mock.route');
 
 const app = express();
 
@@ -50,6 +51,7 @@ app.use('/ai', aiRoutes);
 app.use('/interview', interviewRoutes);
 app.use('/admin', adminRoutes);
 app.use('/demo', demoRoutes);
+app.use('/mock', mockRoutes);
 // Mount dashboard routes
 app.use('/dashboard', dashboardRoutes);
 
