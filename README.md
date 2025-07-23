@@ -4,7 +4,7 @@
 NeoRecruiter is a cutting-edge AI-powered interview platform that revolutionizes the hiring process. It enables HR professionals to conduct intelligent interviews, evaluate candidates automatically, and make data-driven hiring decisions with advanced analytics and anti-cheating detection.
 
 ## Live Demo
-- **Frontend**: [https://neorecruiter.vercel.app](https://neorecruiter.vercel.app/)
+- **Frontend**: [https://neorecruiter.vercel.app/](https://neorecruiter.vercel.app/)
 - **Backend**: [https://neorecruiter-ai-hr.onrender.com](https://neorecruiter-ai-hr.onrender.com)
 - **Demo Login**: interview123@gmail.com / interv@123
 
