@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const { demoHrUser } = require('../utils/demoData');
+
+const upload = multer({ dest: 'uploads/' });
 
 // GET: Mock data for demo and fallback
 router.get('/data', (req, res) => {
@@ -23,6 +26,29 @@ router.get('/data', (req, res) => {
 // Add a health check endpoint
 router.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Mock API is running' });
+});
+
+// Fallback for candidate registration
+router.post('/candidate-register', upload.single('resume'), (req, res) => {
+  console.log('Mock candidate registration called');
+  res.json({
+    success: true,
+    message: 'Candidate registered successfully (mock)',
+    questions: [
+      { text: "What is your experience with React?" },
+      { text: "Explain the concept of state management in frontend applications." }
+    ]
+  });
+});
+
+// Fallback for any other POST requests
+router.post('*', (req, res) => {
+  console.log('Generic mock POST handler called for:', req.path);
+  res.json({
+    success: true,
+    message: 'Mock endpoint response',
+    path: req.path
+  });
 });
 
 module.exports = router;
