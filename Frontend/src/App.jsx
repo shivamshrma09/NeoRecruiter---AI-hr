@@ -1,73 +1,103 @@
-import {
-  Routes,
-  Route,
-  useNavigate,
-} from "react-router-dom";
+const dotenv = require('dotenv');
+dotenv.config();
 
-import { useContext } from "react";
+const express = require('express');
+const cors = require('cors');
+const cookieParser = require('cookie-parser');
+const hrRoutes = require('./routes/hr.route');
+const aiRoutes = require('./routes/ai.route');
+const dashboardRoutes = require('./routes/dashboard.route');
+const interviewRoutes = require('./routes/interview.route');
+const adminRoutes = require('./routes/admin.route');
+const demoRoutes = require('./routes/demo.route');
+const mockRoutes = require('./routes/mock.route');
 
-import UserContext, { UserDataContext } from "./context/UserContext";
-import PrivateRoute from "./components/PrivateRoute";
+const app = express();
 
-import Home from "./components/Home";
-import Login from "./components/Login";
-import Signup from "./components/Signup";
-import Dashboard from "./components/HomeDashboard";
-import Interview from "./components/Interview";
-import InterviewLink from "./components/InterviewLink";
-import InterviewResults from "./components/InterviewResults";
-import StudentInterview from "./components/StudentInterview";
-import LandingPage from "./components/LandingPage";
-import Charts from "./components/Charts";
+// Connect to database
+const connectToDatabase = require('./db/db');
+connectToDatabase();
 
-function AppContent() {
-  const { logout } = useContext(UserDataContext);
-  const navigate = useNavigate();
+// Configure CORS properly
+app.use(cors({
+  origin: function(origin, callback) {
+    const allowedOrigins = ['http://localhost:5173', 'https://neorecruiter.vercel.app', 'http://localhost:3000'];
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all origins in development
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
+}));
 
-  const handleLogout = () => {
-    logout();
-    navigate("/Login");
-  };
+// Handle preflight requests
+app.options('*', cors());
 
-  return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/Login" element={<Login />} />
-      <Route path="/Signup" element={<Signup />} />
-      <Route
-        path="/Dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard onLogout={handleLogout} />
-          </PrivateRoute>
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+app.get('/', (req, res) => {
+  res.send('NeoRecruiter Backend API - Running Successfully');
+});
+
+app.use('/hr', hrRoutes);
+app.use('/ai', aiRoutes);
+app.use('/interview', interviewRoutes);
+app.use('/admin', adminRoutes);
+app.use('/demo', demoRoutes);
+// Mount dashboard routes
+app.use('/dashboard', dashboardRoutes);
+// Mount mock routes
+app.use('/mock', mockRoutes);
+
+// Add direct fallback routes
+app.get('/hr/interviews-fallback', (req, res) => {
+  // Return mock interview data
+  const mockInterviews = [
+    {
+      _id: "interview1",
+      role: "Frontend Developer",
+      technicalDomain: "React",
+      questions: [
+        { text: "Explain the concept of Virtual DOM in React", expectedAnswer: "Virtual DOM is a lightweight copy of the actual DOM" },
+        { text: "What are React Hooks?", expectedAnswer: "Functions that let you use state and other React features" }
+      ],
+      candidates: [
+        {
+          email: "candidate1@example.com",
+          name: "John Doe",
+          status: "completed",
+          scores: [{ overallscore: "4 - Good" }]
         }
-      />
-      <Route path="/interview" element={<Interview />} />
-      <Route path="/interview-link" element={<InterviewLink />} />
-      <Route path="/interview-results/:id" element={<InterviewResults />} />
-      <Route path="/student-interview" element={<StudentInterview />} />
-      <Route path="/landing" element={<LandingPage />} />
-      <Route path="/Charts" element={<Charts />} />
-      <Route
-        path="*"
-        element={
-          <div className="p-8 text-center">
-            <h1 className="text-2xl font-bold text-red-600">
-              404 - Page Not Found
-            </h1>
-          </div>
-        }
-      />
-    </Routes>
-  );
-}
+      ],
+      createdAt: new Date()
+    }
+  ];
+  
+  res.json({
+    interviews: mockInterviews,
+    totalInterviews: mockInterviews.length,
+    totalCandidates: 1,
+    completedInterviews: 1,
+    balance: 1000
+  });
+});
 
-function App() {
-  return (
-    <UserContext>
-      <AppContent />
-    </UserContext>
-  );
-}
+// Error handler for undefined routes
+app.use((req, res, next) => {
+  res.status(404).json({ message: 'Endpoint not found' });
+});
 
-export default App;
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Global error:', err);
+  res.status(500).json({ message: 'Server error', error: err.message });
+});
+
+module.exports = app;
