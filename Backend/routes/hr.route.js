@@ -4,6 +4,7 @@ const multer = require("multer");
 const upload = multer({ dest: "uploads/" });
 
 const hrController = require('../controllers/hr.controller');
+const interviewController = require('../controllers/interview.controller');
 const authHrMiddleware = require('../middlewares/hr.middleware');
 const Hr = require('../models/hr.model');
 
