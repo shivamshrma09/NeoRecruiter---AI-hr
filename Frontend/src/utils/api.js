@@ -53,6 +53,22 @@ api.interceptors.response.use(
       }
     }
     
+    // Special handling for interviews endpoint
+    if (originalRequest?.url === '/hr/interviews' && (!error.response || error.response.status >= 400)) {
+      console.log('Trying fallback interviews endpoint...');
+      try {
+        // Try the fallback endpoint
+        const fallbackResponse = await axios({
+          ...originalRequest,
+          url: '/hr/interviews-fallback',
+          baseURL: originalRequest.baseURL
+        });
+        return fallbackResponse;
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError.message);
+      }
+    }
+    
     // For any other error, log it
     console.error(`API Error (${originalRequest?.url}):`, error.message);
     

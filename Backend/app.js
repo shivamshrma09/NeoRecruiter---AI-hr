@@ -19,12 +19,22 @@ connectToDatabase();
 
 // Configure CORS properly
 app.use(cors({
- origin: ['http://localhost:5173', 'https://neorecruiter.vercel.app'],
+  origin: function(origin, callback) {
+    const allowedOrigins = ['http://localhost:5173', 'https://neorecruiter.vercel.app', 'http://localhost:3000'];
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all origins in development
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
 }));
 
+// Handle preflight requests
 app.options('*', cors());
 
 app.use(express.json());

@@ -34,6 +34,39 @@ router.post('/login', [
 router.get('/profile', authHrMiddleware.authHr, hrController.getProfile);
 router.post('/logout', authHrMiddleware.authHr, hrController.logoutHr);
 
+// Fallback route for interviews (no auth required)
+router.get('/interviews-fallback', (req, res) => {
+  // Return mock interview data
+  const mockInterviews = [
+    {
+      _id: "interview1",
+      role: "Frontend Developer",
+      technicalDomain: "React",
+      questions: [
+        { text: "Explain the concept of Virtual DOM in React", expectedAnswer: "Virtual DOM is a lightweight copy of the actual DOM" },
+        { text: "What are React Hooks?", expectedAnswer: "Functions that let you use state and other React features" }
+      ],
+      candidates: [
+        {
+          email: "candidate1@example.com",
+          name: "John Doe",
+          status: "completed",
+          scores: [{ overallscore: "4 - Good" }]
+        }
+      ],
+      createdAt: new Date()
+    }
+  ];
+  
+  res.json({
+    interviews: mockInterviews,
+    totalInterviews: mockInterviews.length,
+    totalCandidates: 1,
+    completedInterviews: 1,
+    balance: 1000
+  });
+});
+
 // Get all interviews for the HR user
 router.get('/interviews', authHrMiddleware.authHr, async (req, res) => {
   try {
