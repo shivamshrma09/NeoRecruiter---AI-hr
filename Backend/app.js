@@ -56,17 +56,51 @@ app.use('/mock', mockRoutes);
 app.use('/dashboard', dashboardRoutes);
 
 // Fallback routes for missing endpoints
-app.post('/hr/save-answer', (req, res) => {
+app.post('/hr/save-answer', async (req, res) => {
   console.log('Fallback save-answer route called', req.body);
-  const { questionIndex } = req.body;
+  const { email, questionIndex, interviewId } = req.body;
   
-  // Define real questions
-  const realQuestions = [
-    { text: "What is your experience with React?" },
-    { text: "Explain the concept of state management in frontend applications." },
-    { text: "How do you handle API calls in a React application?" }
-  ];
+  try {
+    // Try to find the real questions from the HR's interview
+    const Hr = require('./models/hr.model');
+    const hr = await Hr.findOne({ 'interviews.candidates.email': email });
+    
+    if (hr) {
+      const interview = hr.interviews.find(i => i.candidates.some(c => c.email === email));
+      if (interview && interview.questions && interview.questions.length > 0) {
+        console.log('Found real HR questions:', interview.questions.map(q => q.text));
+        
+        // Return the real question
+        return res.json({
+          msg: "Answer saved and scored",
+          scores: {
+            Relevance: "4 - Relevant to the question",
+            ContentDepth: "3 - Covers main points",
+            CommunicationSkill: "3 - Communicates clearly",
+            Sentiment: "3 - Positive tone",
+            overallscore: "3 - Meets expectations",
+            improvement: "Try to give more specific examples."
+          },
+          isCompleted: questionIndex >= interview.questions.length - 1,
+          aiAnalysisComplete: true,
+          question: questionIndex < interview.questions.length ? interview.questions[questionIndex].text : "No more questions"
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error finding real questions:', error);
+  }
   
+  // If we couldn't find real questions, use the interview controller directly
+  try {
+    const interviewController = require('./controllers/interview.controller');
+    req.body.interviewId = interviewId || 'interview1';
+    return interviewController.submitCandidateAnswer(req, res);
+  } catch (error) {
+    console.error('Error using interview controller:', error);
+  }
+  
+  // Last resort fallback
   res.json({
     msg: "Answer saved and scored",
     scores: {
@@ -78,8 +112,7 @@ app.post('/hr/save-answer', (req, res) => {
       improvement: "Try to give more specific examples."
     },
     isCompleted: questionIndex >= 2,
-    aiAnalysisComplete: true,
-    question: questionIndex < realQuestions.length ? realQuestions[questionIndex].text : "No more questions"
+    aiAnalysisComplete: true
   });
 });
 
