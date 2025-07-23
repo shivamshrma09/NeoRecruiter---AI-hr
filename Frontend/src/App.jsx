@@ -1,77 +1,52 @@
-import {
-  Routes,
-  Route,
-  useNavigate,
-} from "react-router-dom";
-
 import { useContext } from "react";
-import axios from "axios";
+import { Routes, Route, Navigate, BrowserRouter as Router } from "react-router-dom";
+import { UserDataContext } from "./context/UserContext";
 
-import UserContext, { UserDataContext } from "./context/UserContext";
-import PrivateRoute from "./components/PrivateRoute";
-
+// Components
 import Home from "./components/Home";
 import Login from "./components/Login";
 import Signup from "./components/Signup";
 import Dashboard from "./components/HomeDashboard";
 import Interview from "./components/Interview";
-import InterviewLink from "./components/InterviewLink";
 import InterviewResults from "./components/InterviewResults";
 import StudentInterview from "./components/StudentInterview";
-import LandingPage from "./components/LandingPage";
-import Charts from "./components/Charts";
+import EnhancedStudentInterview from "./components/EnhancedStudentInterview";
+import SEO from "./components/SEO";
 
-function AppContent() {
-  const { logout } = useContext(UserDataContext);
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate("/Login");
-  };
-
-  // Remove the test axios call that's causing the error
-  // We'll use the api utility for actual API calls
-
-
-  return (
-    <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/Login" element={<Login />} />
-      <Route path="/Signup" element={<Signup />} />
-      <Route
-        path="/Dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard onLogout={handleLogout} />
-          </PrivateRoute>
-        }
-      />
-      <Route path="/interview" element={<Interview />} />
-      <Route path="/interview-link" element={<InterviewLink />} />
-      <Route path="/interview-results/:id" element={<InterviewResults />} />
-      <Route path="/student-interview" element={<StudentInterview />} />
-      <Route path="/landing" element={<LandingPage />} />
-      <Route path="/Charts" element={<Charts />} />
-      <Route
-        path="*"
-        element={
-          <div className="p-8 text-center">
-            <h1 className="text-2xl font-bold text-red-600">
-              404 - Page Not Found
-            </h1>
-          </div>
-        }
-      />
-    </Routes>
-  );
-}
+// Private Route Component
+const PrivateRoute = ({ children }) => {
+  const { user } = useContext(UserDataContext);
+  return user ? children : <Navigate to="/login" />;
+};
 
 function App() {
+  const { user, logout } = useContext(UserDataContext);
+  
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
-    <UserContext>
-      <AppContent />
-    </UserContext>
+    <Router>
+      <SEO />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/Login" element={<Login />} />
+        <Route path="/Signup" element={<Signup />} />
+        <Route
+          path="/Dashboard"
+          element={
+            <PrivateRoute>
+              <Dashboard onLogout={handleLogout} />
+            </PrivateRoute>
+          }
+        />
+        <Route path="/interview" element={<Interview />} />
+        <Route path="/interview-results" element={<InterviewResults />} />
+        <Route path="/student-interview" element={<StudentInterview />} />
+        <Route path="/enhanced-interview" element={<EnhancedStudentInterview />} />
+      </Routes>
+    </Router>
   );
 }
 
