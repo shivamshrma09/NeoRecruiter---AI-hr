@@ -1,312 +1,88 @@
 const express = require('express');
 const { body } = require('express-validator');
 const multer = require("multer");
-const upload = multer({ dest: "uploads/" });
-
+const authHrMiddleware = require('../middlewares/hr.middleware');
 const hrController = require('../controllers/hr.controller');
 const interviewController = require('../controllers/interview.controller');
-const authHrMiddleware = require('../middlewares/hr.middleware');
 const Hr = require('../models/hr.model');
 
-// Initialize Gemini AI with error handling
-let genAI;
-try {
-  const { GoogleGenerativeAI, Type } = require("@google/generative-ai");
-  genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'dummy-key');
-} catch (err) {
-  console.error('Failed to initialize Gemini AI:', err);
-  // Continue without Gemini AI - will use fallback scoring
-}
-
 const router = express.Router();
+const upload = multer({ dest: "uploads/" });
 
+// Register HR
 router.post('/register', [
   body('email').isEmail().withMessage('Invalid Email'),
   body('companyName').isLength({ min: 3 }).withMessage('Company Name should be at least 3 characters'),
   body('password').isLength({ min: 6 }).withMessage('Password should be at least 6 characters')
 ], hrController.RegisterHr);
 
+// Login HR
 router.post('/login', [
   body('email').isEmail().withMessage('Invalid Email'),
   body('password').isLength({ min: 6 }).withMessage('Password should be at least 6 characters')
 ], hrController.loginHr);
 
+// Authenticated HR routes
 router.get('/profile', authHrMiddleware.authHr, hrController.getProfile);
 router.post('/logout', authHrMiddleware.authHr, hrController.logoutHr);
 
-// Fallback route for interviews (no auth required)
+// POST: Create interview (must match what frontend calls)
+router.post('/interviews', authHrMiddleware.authHr, interviewController.createInterview);
+
+// GET: All interviews for a logged-in HR
+router.get('/interviews', authHrMiddleware.authHr, async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const email = req.user.email;
+
+    let hrUser = await Hr.findById(userId).catch(() => Hr.findOne({ email }));
+    if (!hrUser) return res.status(404).json({ message: 'User not found' });
+
+    const interviews = hrUser.interviews || [];
+    const totalInterviews = interviews.length;
+    const totalCandidates = interviews.reduce((sum, i) => sum + (i.candidates?.length || 0), 0);
+    const completedInterviews = interviews.filter(i => i.candidates?.some(c => c.status === "completed")).length;
+
+    return res.json({
+      interviews,
+      totalInterviews,
+      totalCandidates,
+      completedInterviews,
+      balance: hrUser.Balance
+    });
+  } catch (err) {
+    console.error("Failed to fetch interviews:", err);
+    res.status(500).json({ message: "Error fetching interviews", error: err.message });
+  }
+});
+
+// GET: Mock/Fallback data for demo
 router.get('/interviews-fallback', (req, res) => {
-  // Return mock interview data
-  const mockInterviews = [
-    {
-      _id: "interview1",
-      role: "Frontend Developer",
-      technicalDomain: "React",
-      questions: [
-        { text: "Explain the concept of Virtual DOM in React", expectedAnswer: "Virtual DOM is a lightweight copy of the actual DOM" },
-        { text: "What are React Hooks?", expectedAnswer: "Functions that let you use state and other React features" }
-      ],
-      candidates: [
-        {
-          email: "candidate1@example.com",
-          name: "John Doe",
-          status: "completed",
-          scores: [{ overallscore: "4 - Good" }]
-        }
-      ],
-      createdAt: new Date()
-    }
-  ];
-  
   res.json({
-    interviews: mockInterviews,
-    totalInterviews: mockInterviews.length,
+    interviews: [
+      {
+        _id: "interview1",
+        role: "Frontend Developer",
+        technicalDomain: "React",
+        questions: [
+          { text: "What is React?", expectedAnswer: "React is a UI library developed by Facebook" }
+        ],
+        candidates: [
+          {
+            email: "candidate@example.com",
+            name: "John Doe",
+            status: "completed",
+            scores: [{ overallscore: "4 - Good" }]
+          }
+        ],
+        createdAt: new Date()
+      }
+    ],
+    totalInterviews: 1,
     totalCandidates: 1,
     completedInterviews: 1,
     balance: 1000
   });
 });
-
-// Get all interviews for the HR user
-router.get('/interviews', authHrMiddleware.authHr, async (req, res) => {
-  try {
-    // For demo user, return mock data
-    if (req.user._id === 'demo123' || req.user.email === 'interview123@gmail.com') {
-      // Return mock interview data
-      const mockInterviews = [
-        {
-          _id: "interview1",
-          role: "Frontend Developer",
-          technicalDomain: "React",
-          questions: [
-            { text: "Explain the concept of Virtual DOM in React", expectedAnswer: "Virtual DOM is a lightweight copy of the actual DOM" },
-            { text: "What are React Hooks?", expectedAnswer: "Functions that let you use state and other React features" }
-          ],
-          candidates: [
-            {
-              email: "candidate1@example.com",
-              name: "John Doe",
-              status: "completed",
-              scores: [{ overallscore: "4 - Good" }]
-            }
-          ],
-          createdAt: new Date()
-        }
-      ];
-      
-      return res.json({
-        interviews: mockInterviews,
-        totalInterviews: mockInterviews.length,
-        totalCandidates: 1,
-        completedInterviews: 1,
-        balance: 1000
-      });
-    }
-    
-    // For regular users, try to find by ID
-    let hr;
-    try {
-      hr = await Hr.findById(req.user._id);
-    } catch (idError) {
-      // If ID is invalid, try finding by email
-      hr = await Hr.findOne({ email: req.user.email });
-    }
-    
-    if (!hr) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-    
-    // Get the interviews from the user document
-    const interviews = hr.interviews || [];
-    
-    // Calculate statistics
-    const totalInterviews = interviews.length;
-    const totalCandidates = interviews.reduce((sum, interview) => sum + (interview.candidates?.length || 0), 0);
-    const completedInterviews = interviews.filter(interview => 
-      interview.candidates?.some(candidate => candidate.status === "completed")
-    ).length;
-    
-    res.json({ 
-      interviews,
-      totalInterviews,
-      totalCandidates,
-      completedInterviews,
-      balance: hr.Balance
-    });
-  } catch (error) {
-    console.error('Error fetching interviews:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
-
-router.post('/interviews', authHrMiddleware.authHr, interviewController.createInterview);
-
-router.post('/get-candidate-company', async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ msg: "Email is required" });
-  
-  // Return hardcoded data
-  res.json({
-    companyName: "Demo Company",
-    email: "company@example.com",
-    interviews: [
-      {
-        role: "Frontend Developer",
-        technicalDomain: "React",
-        candidates: [{ email: email }]
-      }
-    ]
-  });
-});
-
-router.post("/candidate-register", upload.single("resume"), (req, res) => {
-  res.json({ questions: [
-    { text: "What is React?" },
-    { text: "Explain hooks in React" }
-  ]});
-});
-
-router.post("/upload-screen-recording", upload.single("screenRecording"), (req, res) => {
-  res.json({ msg: "Screen recording saved" });
-});
-
-router.post("/save-answer", (req, res) => {
-  const { email, answer, questionIndex } = req.body;
-  
-  // Return hardcoded analysis
-  res.json({ 
-    msg: "Answer analyzed and saved successfully", 
-    scores: {
-      Relevance: "4 - Answer directly addresses the core question with good focus on key concepts",
-      ContentDepth: "3 - Good understanding demonstrated with reasonable technical content",
-      CommunicationSkill: "3 - Clear communication with logical flow and understandable explanations",
-      Sentiment: "3 - Shows positive engagement and professional attitude in response",
-      overallscore: "3 - Average performance meeting basic requirements with solid foundation",
-      improvement: "Consider providing more specific examples to illustrate your points."
-    },
-    isCompleted: questionIndex >= 1,
-    aiAnalysisComplete: true
-  });
-});
-
-router.post('/candidate/submit-answer', (req, res) => {
-  res.json({ message: 'Answer submitted successfully', score: 85 });
-});
-
-router.get('/candidate/interview', (req, res) => {
-  res.json({ 
-    interview: {
-      role: "Frontend Developer",
-      technicalDomain: "React",
-      questions: [{ text: "What is React?" }, { text: "Explain hooks" }]
-    },
-    candidate: {
-      email: req.query.email,
-      answers: [],
-      currentQuestion: 0
-    }
-  });
-});
-
-router.post('/log-action', (req, res) => {
-  res.json({ message: 'Action logged successfully' });
-});
-
-// Dashboard data endpoint
-router.get('/data', (req, res) => {
-  res.json({
-    totalInterviews: 2,
-    totalCandidates: 3,
-    completedInterviews: 2,
-    pendingInterviews: 0,
-    balance: 1000,
-    recentActivity: [
-      {
-        type: 'interview_created',
-        date: new Date(),
-        details: 'Frontend Developer interview created'
-      },
-      {
-        type: 'candidate_completed',
-        date: new Date(),
-        details: 'John Doe completed Frontend Developer interview'
-      }
-    ],
-    analytics: {
-      interviewsByMonth: [5, 7, 10, 12, 8, 15, 12, 9, 11, 14, 10, 12],
-      candidatePerformance: {
-        excellent: 1,
-        good: 1,
-        average: 1,
-        poor: 0
-      },
-      topSkills: [
-        { name: 'React', score: 85 },
-        { name: 'Node.js', score: 78 },
-        { name: 'JavaScript', score: 92 },
-        { name: 'TypeScript', score: 76 },
-        { name: 'MongoDB', score: 70 }
-      ]
-    }
-  });
-});
-
-// Analytics data endpoint
-router.get('/analytics', (req, res) => {
-  res.json({
-    interviewStats: {
-      total: 2,
-      completed: 2,
-      pending: 0,
-      averageScore: "78.5"
-    },
-    candidateStats: {
-      total: 3,
-      interviewed: 2,
-      hired: 1,
-      rejected: 1,
-      inProgress: 1
-    },
-    skillsAnalysis: [
-      { skill: 'JavaScript', count: 2, averageScore: 82 },
-      { skill: 'React', count: 2, averageScore: 79 },
-      { skill: 'Node.js', count: 1, averageScore: 76 },
-      { skill: 'TypeScript', count: 1, averageScore: 81 },
-      { skill: 'MongoDB', count: 1, averageScore: 74 }
-    ],
-    monthlyTrends: {
-      interviews: [12, 15, 18, 22, 19, 24, 28, 25, 30, 32, 35, 45],
-      candidates: [25, 30, 35, 40, 38, 45, 50, 48, 55, 60, 65, 70],
-      averageScores: [72, 74, 75, 76, 78, 77, 79, 80, 78, 81, 82, 83]
-    }
-  });
-});
-
-// Helper functions
-function extractScoresFromText(text, answer, expectedAnswer) {
-  return {
-    Relevance: "4 - Answer directly addresses the core question with good focus on key concepts",
-    ContentDepth: "3 - Good understanding demonstrated with reasonable technical content",
-    CommunicationSkill: "3 - Clear communication with logical flow and understandable explanations",
-    Sentiment: "3 - Shows positive engagement and professional attitude in response",
-    skillcorrect: "3 - Basic competency shown with fundamental concepts understood correctly",
-    overallscore: "3 - Average performance meeting basic requirements with solid foundation"
-  };
-}
-
-function generateFallbackScores(answer, expectedAnswer, question) {
-  return {
-    Relevance: "3 - Moderately relevant answer covering main points but could be more focused",
-    ContentDepth: "3 - Good understanding demonstrated with reasonable technical content",
-    CommunicationSkill: "3 - Clear communication with logical flow and understandable explanations",
-    Sentiment: "3 - Shows positive engagement and professional attitude in response",
-    skillcorrect: "3 - Basic competency shown with fundamental concepts understood correctly",
-    overallscore: "3 - Average performance meeting basic requirements with solid foundation"
-  };
-}
-
-function generateFallbackImprovement(answer, expectedAnswer) {
-  return "Consider providing more specific examples to illustrate your points.";
-}
 
 module.exports = router;
