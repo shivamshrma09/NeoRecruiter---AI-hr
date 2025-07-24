@@ -59,6 +59,54 @@ NeoRecruiter is a cutting-edge AI-powered interview platform that revolutionizes
 - Gmail account for email service
 - Google Gemini API key
 
+## HR Flow:
+### 1.landing page 
+<img width="1892" height="920" alt="Screenshot 2025-07-24 112149" src="https://github.com/user-attachments/assets/70d13e71-61bd-4ae4-a2e7-a367d60fe37c" />
+<img width="1918" height="906" alt="Screenshot 2025-07-24 112217" src="https://github.com/user-attachments/assets/60e1dbf9-5d76-4159-824c-9b1b26bfeb3f" />
+
+### 1. HR creates an account  and logs in 
+<img width="1915" height="910" alt="Screenshot 2025-07-24 112234" src="https://github.com/user-attachments/assets/7b384ee7-7e0f-477c-ac19-22430bb9c324" />
+
+### 2.singup 
+<img width="1919" height="916" alt="Screenshot 2025-07-24 112249" src="https://github.com/user-attachments/assets/aca9bf0d-3df8-4507-851d-3aa708316543" />
+
+### 3.hr dashboard
+<img width="1900" height="909" alt="Screenshot 2025-07-24 112309" src="https://github.com/user-attachments/assets/aba90b70-cc94-4c76-90b4-c96e84353606" />
+
+
+### 4.HR creates interview with custom questions
+<img width="1893" height="914" alt="Screenshot 2025-07-24 112329" src="https://github.com/user-attachments/assets/086cdc43-2ebd-4e32-ae91-50302840ae0b" />
+<img width="1907" height="905" alt="Screenshot 2025-07-24 112353" src="https://github.com/user-attachments/assets/f73b23aa-dfc6-476c-8700-b938c12e14d9" />
+
+### 5.HR adds candidates by email
+<img width="1895" height="910" alt="Screenshot 2025-07-24 114021" src="https://github.com/user-attachments/assets/6f76cded-755f-42ae-b88d-79a1974b9444" />
+
+
+### 6.HR reviews candidate performance with AI-powered insights
+<img width="1897" height="909" alt="Screenshot 2025-07-24 112509" src="https://github.com/user-attachments/assets/c4e3bcd1-9601-4b3f-873a-b1318069ef85" />
+<img width="1904" height="906" alt="Screenshot 2025-07-24 112527" src="https://github.com/user-attachments/assets/764eff87-d024-45ef-9b4b-c0d66f4f8d1d" />
+<img width="1912" height="914" alt="Screenshot 2025-07-24 112543" src="https://github.com/user-attachments/assets/31aa8461-1ba1-4ca3-8c0b-4c2005aaaf52" />
+<img width="1846" height="916" alt="Screenshot 2025-07-24 112609" src="https://github.com/user-attachments/assets/ca05f265-3de4-4945-a4b1-636adf751a4c" />
+<img width="1909" height="908" alt="Screenshot 2025-07-24 112628" src="https://github.com/user-attachments/assets/160e5313-fe26-4186-9699-cc16b7dd3a2e" />
+
+### 7.help
+<img width="1910" height="913" alt="Screenshot 2025-07-24 112649" src="https://github.com/user-attachments/assets/9c7a3f32-128a-4cde-86a5-9f965b99cf96" />
+
+
+## candidate flow
+<img width="1899" height="909" alt="Screenshot 2025-07-24 112800" src="https://github.com/user-attachments/assets/16910e3c-3fcf-4f91-97b1-0bd58d6269ba" />
+<img width="1908" height="906" alt="Screenshot 2025-07-24 112832" src="https://github.com/user-attachments/assets/d0dd0590-cf56-44c6-b010-5606ee9b82bb" />
+<img width="1912" height="906" alt="Screenshot 2025-07-24 112855" src="https://github.com/user-attachments/assets/1ae91cb9-0680-4f8a-a1b5-243b3831e6fd" />
+
+
+## student mock interview
+<img width="1868" height="914" alt="Screenshot 2025-07-24 112738" src="https://github.com/user-attachments/assets/df169724-8a52-43ad-a0ae-ab1e92b85c1a" />
+<img width="1871" height="1075" alt="Screenshot 2025-07-24 114456" src="https://github.com/user-attachments/assets/02c1ef08-aeec-46b5-8602-1564a5e9ccd6" />
+<img width="635" height="853" alt="Screenshot 2025-07-24 114550" src="https://github.com/user-attachments/assets/820f03a6-c065-4998-90dc-79987c77ded3" />
+<img width="1919" height="1079" alt="Screenshot 2025-07-24 114611" src="https://github.com/user-attachments/assets/59125e8d-23d8-4744-bc95-4d9fa697d951" />
+
+
+
 ### Backend Setup
 ```bash
 cd Backend
