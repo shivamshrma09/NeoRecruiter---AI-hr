@@ -6,24 +6,41 @@ const BlackListTokenModel = require('../models/black.list.token.model');
 
 exports.RegisterHr = async (req, res) => {
     try {
+        console.log('Registration request received:', req.body);
+        
         const { companyName, email, password } = req.body;
         
         if (!companyName || !email || !password) {
+            console.log('Missing required fields');
             return res.status(400).json({ message: 'All fields required' });
         }
         
+        // Validate input
+        if (companyName.length < 3) {
+            return res.status(400).json({ message: 'Company name must be at least 3 characters' });
+        }
+        
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+        
         // Check if user already exists
+        console.log('Checking if user exists:', email);
         const existingUser = await hrModel.findOne({ email });
         if (existingUser) {
+            console.log('User already exists:', email);
             return res.status(400).json({ message: 'User already exists with this email' });
         }
         
         try {
-            // Create new HR user with default 1000 rupees balance
+            // Create new HR user
+            console.log('Creating new HR user...');
             const newUser = await hrService.createHr({ companyName, email, password });
+            console.log('HR user created:', newUser._id);
             
             // Generate authentication token
             const token = newUser.generateAuthToken();
+            console.log('Token generated for user:', newUser._id);
             
             // Set token in cookie for better security
             res.cookie('token', token, {
@@ -33,23 +50,35 @@ exports.RegisterHr = async (req, res) => {
                 secure: process.env.NODE_ENV === 'production'
             });
             
-            res.status(201).json({
+            const responseData = {
                 message: 'Registration successful',
                 user: {
                     _id: newUser._id,
                     companyName: newUser.companyName,
                     email: newUser.email,
-                    Balance: newUser.Balance
+                    Balance: newUser.Balance || 1000
                 },
                 token: token
-            });
+            };
+            
+            console.log('Sending registration response:', responseData);
+            res.status(201).json(responseData);
+            
         } catch (createError) {
             console.error('User creation error:', createError);
-            return res.status(500).json({ message: 'Failed to create user', error: createError.message });
+            return res.status(500).json({ 
+                message: 'Failed to create user', 
+                error: createError.message,
+                details: createError.stack
+            });
         }
     } catch (err) {
         console.error('Registration error:', err);
-        res.status(500).json({ message: 'Registration failed', error: err.message });
+        res.status(500).json({ 
+            message: 'Registration failed', 
+            error: err.message,
+            details: err.stack
+        });
     }
 };
 
