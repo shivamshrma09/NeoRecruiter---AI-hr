@@ -121,6 +121,41 @@ app.post('/hr/log-action', (req, res) => {
   res.json({ message: 'Action logged successfully' });
 });
 
+// Student interview endpoints
+app.post('/hr/student-interview', async (req, res) => {
+  console.log('Fallback student-interview route called', req.body);
+  const { role } = req.body;
+  
+  const questions = [
+    { text: `What is your experience with ${role}?` },
+    { text: 'Tell me about a challenging project you worked on.' },
+    { text: 'How do you stay updated with new technologies?' }
+  ];
+  
+  res.json({
+    success: true,
+    message: 'Interview questions generated successfully',
+    questions,
+    interviewId: `student_${Date.now()}`
+  });
+});
+
+app.post('/hr/student-submit-answer', (req, res) => {
+  console.log('Fallback student-submit-answer route called', req.body);
+  const { isLastQuestion } = req.body;
+  
+  res.json({
+    success: true,
+    analysis: {
+      score: 85,
+      feedback: 'Good answer! Shows understanding of the concept.',
+      strengths: 'Clear communication and relevant content.',
+      improvements: 'Consider adding more specific examples.'
+    },
+    isCompleted: isLastQuestion
+  });
+});
+
 // Error handler for undefined routes
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Endpoint not found' });
