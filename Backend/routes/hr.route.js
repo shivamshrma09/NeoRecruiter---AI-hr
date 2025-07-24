@@ -430,8 +430,9 @@ router.post('/candidate-register', upload.single('resume'), async (req, res) => 
       
       if (!interview) {
         console.log('Creating demo interview');
+        const mongoose = require('mongoose');
         interview = {
-          _id: new require('mongoose').Types.ObjectId(),
+          _id: new mongoose.Types.ObjectId(),
           role: 'Frontend Developer',
           technicalDomain: 'React',
           questions: realQuestions,
