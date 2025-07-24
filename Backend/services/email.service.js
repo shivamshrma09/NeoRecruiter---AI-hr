@@ -2,9 +2,15 @@ const nodemailer = require('nodemailer')
 
 const transporter = nodemailer.createTransport({
   service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false,
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+    user: process.env.EMAIL_USER || 'neorecruiter.ai@gmail.com',
+    pass: process.env.EMAIL_PASS || 'your-app-password'
+  },
+  tls: {
+    rejectUnauthorized: false
   }
 })
 
@@ -151,7 +157,78 @@ const sendInterviewCompletionNotification = async (hrEmail, candidateDetails, in
   }
 };
 
+const sendStudentAnalysisEmail = async (studentEmail, analysisData) => {
+  try {
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'noreply@neorecruiter.com',
+      to: studentEmail,
+      subject: `Interview Analysis - ${analysisData.role} Position`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+          <div style="background: linear-gradient(to right, #1e40af, #3b82f6); padding: 30px 20px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">Interview Analysis Report</h1>
+            <p style="color: white; margin-top: 10px; font-size: 16px;">AI-Powered Assessment Results</p>
+          </div>
+          
+          <div style="padding: 30px 20px;">
+            <p style="font-size: 16px;">Dear ${analysisData.name},</p>
+            <p style="font-size: 16px; line-height: 1.5;">Thank you for completing the mock interview for the <strong>${analysisData.role}</strong> position. Here's your detailed AI-powered analysis:</p>
+            
+            <div style="background: #f3f4f6; padding: 20px; border-radius: 8px; margin: 25px 0; text-align: center;">
+              <h2 style="color: #1e40af; margin-top: 0;">Overall Score</h2>
+              <div style="font-size: 48px; font-weight: bold; color: ${analysisData.finalScore >= 80 ? '#10b981' : analysisData.finalScore >= 60 ? '#f59e0b' : '#ef4444'}; margin: 10px 0;">
+                ${analysisData.finalScore}%
+              </div>
+              <p style="color: #6b7280; margin: 0;">
+                ${analysisData.finalScore >= 80 ? 'Excellent Performance!' : analysisData.finalScore >= 60 ? 'Good Performance!' : 'Keep Practicing!'}
+              </p>
+            </div>
+            
+            <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h3 style="color: #1e40af; margin-top: 0;">AI Feedback</h3>
+              <p style="line-height: 1.6; margin: 0;">${analysisData.overallFeedback}</p>
+            </div>
+            
+            <div style="border-left: 4px solid #3b82f6; padding-left: 15px; margin: 25px 0;">
+              <h4 style="margin-top: 0; color: #1e40af;">Questions Covered:</h4>
+              <ul style="padding-left: 20px; line-height: 1.5;">
+                ${analysisData.questions.map((q, i) => `<li>${q}</li>`).join('')}
+              </ul>
+            </div>
+            
+            <div style="background: #ecfdf5; padding: 20px; border-radius: 8px; margin: 25px 0;">
+              <h4 style="margin-top: 0; color: #059669;">Next Steps:</h4>
+              <ul style="padding-left: 20px; line-height: 1.5; color: #047857;">
+                <li>Review the feedback and work on suggested improvements</li>
+                <li>Practice more interviews to build confidence</li>
+                <li>Research the role and company before real interviews</li>
+                <li>Prepare specific examples from your experience</li>
+              </ul>
+            </div>
+            
+            <p style="font-size: 16px; line-height: 1.5;">Keep practicing and improving! This AI analysis is designed to help you prepare for real interviews.</p>
+            
+            <p style="margin-top: 30px;">Best of luck with your job search!<br>The NeoRecruiter AI Team</p>
+          </div>
+          
+          <div style="background: #f3f4f6; padding: 15px; text-align: center; font-size: 12px; color: #6b7280;">
+            <p>© ${new Date().getFullYear()} NeoRecruiter - AI-Powered Interview Platform</p>
+          </div>
+        </div>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Student analysis email sent to ${studentEmail}`);
+    return { success: true, message: 'Analysis email sent successfully' };
+  } catch (error) {
+    console.error('Failed to send student analysis email:', error);
+    return { success: false, message: 'Failed to send analysis email', error: error.message };
+  }
+};
+
 module.exports = {
   sendInterviewInvitation,
-  sendInterviewCompletionNotification
+  sendInterviewCompletionNotification,
+  sendStudentAnalysisEmail
 }
