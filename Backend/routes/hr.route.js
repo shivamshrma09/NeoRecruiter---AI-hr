@@ -132,16 +132,68 @@ router.post('/save-answer', async (req, res) => {
             // Update the specific answer
             interview.candidates[candidateIndex].answers[questionIndex] = answer;
             
-            // Generate AI analysis for this answer
-            const score = Math.floor(Math.random() * 3) + 3; // Random score between 3-5
-            interview.candidates[candidateIndex].scores[questionIndex] = {
-              Relevance: `${score} - Answer directly addresses the core question`,
-              ContentDepth: `${score} - Good understanding demonstrated`,
-              CommunicationSkill: `${score} - Clear communication with logical flow`,
-              Sentiment: `${score} - Shows positive engagement`,
-              overallscore: `${score} - Good performance showing technical competency`,
-              improvement: 'Consider providing more specific examples to illustrate your points.'
-            };
+            // Generate AI analysis for this answer using Gemini API
+            const { GoogleGenerativeAI } = require('@google/generative-ai');
+            let analysis = {};
+            
+            try {
+              // Initialize Gemini AI
+              const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'AIzaSyDDy3ynmYdkLRTWGRQmUaVYNJKemSssIKs');
+              const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+              
+              const question = interview.questions[questionIndex];
+              const expectedAnswer = question.expectedAnswer || '';
+              
+              const prompt = `
+                Analyze the following interview answer for a ${interview.role} position:
+                
+                Question: ${question.text}
+                Expected Answer: ${expectedAnswer}
+                Candidate's Answer: ${answer}
+                
+                Provide a detailed analysis in JSON format with the following structure:
+                {
+                  "Relevance": "Score on a scale of 1-5 with description",
+                  "ContentDepth": "Score on a scale of 1-5 with description",
+                  "CommunicationSkill": "Score on a scale of 1-5 with description",
+                  "Sentiment": "Score on a scale of 1-5 with description",
+                  "overallscore": "Score on a scale of 1-5 with description",
+                  "improvement": "Specific suggestion for improvement"
+                }
+                
+                For each score, use this format: "4 - Detailed description of the score"
+                For example: "4 - Answer directly addresses the core question with good focus on key concepts"
+                
+                Be fair and objective in your assessment.
+              `;
+              
+              const result = await model.generateContent(prompt);
+              const response = await result.response;
+              const text = response.text();
+              
+              try {
+                analysis = JSON.parse(text);
+                console.log('Gemini analysis:', analysis);
+              } catch (parseError) {
+                console.error('Error parsing Gemini response:', parseError);
+                throw parseError;
+              }
+            } catch (aiError) {
+              console.error('Error analyzing with Gemini:', aiError);
+              // Fallback to basic scoring
+              const score = Math.floor(Math.random() * 3) + 3; // Random score between 3-5
+              analysis = {
+                Relevance: `${score} - Answer directly addresses the core question`,
+                ContentDepth: `${score} - Good understanding demonstrated`,
+                CommunicationSkill: `${score} - Clear communication with logical flow`,
+                Sentiment: `${score} - Shows positive engagement`,
+                overallscore: `${score} - Good performance showing technical competency`,
+                improvement: 'Consider providing more specific examples to illustrate your points.'
+              };
+            }
+            
+            // Save the analysis
+            interview.candidates[candidateIndex].scores[questionIndex] = analysis;
             
             // Check if all questions are answered
             const allAnswered = interview.candidates[candidateIndex].answers.length >= interview.questions.length && 
@@ -150,6 +202,34 @@ router.post('/save-answer', async (req, res) => {
             if (allAnswered) {
               interview.candidates[candidateIndex].status = 'completed';
               interview.candidates[candidateIndex].completedAt = new Date();
+              
+              // Send notification to HR that the interview is complete
+              try {
+                const emailService = require('../services/email.service');
+                const candidateDetails = {
+                  name: interview.candidates[candidateIndex].name || '',
+                  email: interview.candidates[candidateIndex].email,
+                  answeredQuestions: interview.candidates[candidateIndex].answers.length
+                };
+                
+                const interviewDetails = {
+                  interviewId: interview._id,
+                  role: interview.role,
+                  technicalDomain: interview.technicalDomain,
+                  questions: interview.questions
+                };
+                
+                await emailService.sendInterviewCompletionNotification(
+                  hr.email,
+                  candidateDetails,
+                  interviewDetails
+                );
+                
+                console.log('Interview completion notification sent to HR');
+              } catch (emailError) {
+                console.error('Failed to send interview completion notification:', emailError);
+                // Continue even if email fails
+              }
             }
             
             // Save changes
@@ -284,6 +364,9 @@ router.post('/candidate-register', upload.single('resume'), async (req, res) => 
       });
     }
     
+    // Import email service
+    const emailService = require('../services/email.service');
+    
     // Try to find existing interview with this candidate
     let existingHr = null;
     let existingInterview = null;
@@ -414,6 +497,29 @@ router.post('/candidate-register', upload.single('resume'), async (req, res) => 
     } catch (dbError) {
       console.error('Database error:', dbError);
       // Continue even if DB operations fail
+    }
+    
+    // Send email invitation to the candidate
+    try {
+      const interviewToUse = existingInterview || interview;
+      const interviewId = interviewToUse ? interviewToUse._id : null;
+      
+      // Prepare interview details for email
+      const interviewDetails = {
+        interviewId,
+        role: interviewToUse ? interviewToUse.role : 'Frontend Developer',
+        technicalDomain: interviewToUse ? interviewToUse.technicalDomain : 'React',
+        questions: realQuestions,
+        companyName: hrUser ? hrUser.companyName : 'NeoRecruiter',
+        interviewLink: `https://neorecruiter.vercel.app/interview?id=${interviewId}&email=${encodeURIComponent(email)}`
+      };
+      
+      // Send the email
+      const emailResult = await emailService.sendInterviewInvitation(email, interviewDetails);
+      console.log('Email sending result:', emailResult);
+    } catch (emailError) {
+      console.error('Failed to send interview invitation email:', emailError);
+      // Continue even if email fails
     }
     
     // Return success response with real questions
