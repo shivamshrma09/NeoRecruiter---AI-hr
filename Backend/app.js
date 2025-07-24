@@ -156,6 +156,52 @@ app.post('/hr/student-submit-answer', (req, res) => {
   });
 });
 
+// Fallback registration route
+app.post('/hr/register', async (req, res) => {
+  console.log('Fallback registration route called', req.body);
+  const { companyName, email, password } = req.body;
+  
+  if (!companyName || !email || !password) {
+    return res.status(400).json({ message: 'All fields required' });
+  }
+  
+  try {
+    const Hr = require('./models/hr.model');
+    
+    // Check if user exists
+    const existingUser = await Hr.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User already exists with this email' });
+    }
+    
+    // Create user
+    const hashedPassword = await Hr.hashPassword(password);
+    const newUser = await Hr.create({
+      companyName,
+      email,
+      password: hashedPassword,
+      Balance: 1000,
+      interviews: []
+    });
+    
+    const token = newUser.generateAuthToken();
+    
+    res.status(201).json({
+      message: 'Registration successful',
+      user: {
+        _id: newUser._id,
+        companyName: newUser.companyName,
+        email: newUser.email,
+        Balance: newUser.Balance
+      },
+      token
+    });
+  } catch (error) {
+    console.error('Fallback registration error:', error);
+    res.status(500).json({ message: 'Registration failed', error: error.message });
+  }
+});
+
 // Error handler for undefined routes
 app.use((req, res, next) => {
   res.status(404).json({ message: 'Endpoint not found' });
