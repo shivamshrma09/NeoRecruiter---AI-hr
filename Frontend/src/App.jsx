@@ -9,7 +9,6 @@ import Signup from "./components/Signup";
 import Dashboard from "./components/HomeDashboard";
 import Interview from "./components/Interview";
 import InterviewResults from "./components/InterviewResults";
-import StudentInterview from "./components/StudentInterview";
 import EnhancedStudentInterview from "./components/EnhancedStudentInterview";
 import SEO from "./components/SEO";
 
@@ -43,8 +42,7 @@ function App() {
         />
         <Route path="/interview" element={<Interview />} />
         <Route path="/interview-results" element={<InterviewResults />} />
-        <Route path="/student-interview" element={<StudentInterview />} />
-        <Route path="/enhanced-interview" element={<EnhancedStudentInterview />} />
+        <Route path="/student-interview" element={<EnhancedStudentInterview />} />
       </Routes>
     </Router>
   );
@@ -52,4 +50,3 @@ function App() {
 
 export default App;
 
-export default App;
