@@ -1,7 +1,7 @@
 const Hr = require('../models/hr.model');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const mongoose = require('mongoose');
-const { sendInterviewInvitation } = require('../services/email.service');
+const { sendInterviewInvitation, sendInterviewCompletionNotification } = require('../services/email.service');
 let genAI;
 try {
   genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || 'AIzaSyDDy3ynmYdkLRTWGRQmUaVYNJKemSssIKs');
@@ -126,6 +126,24 @@ exports.submitCandidateAnswer = async (req, res) => {
     if (isCompleted) {
       hr.interviews[interviewIndex].candidates[candidateIndex].status = 'completed';
       hr.interviews[interviewIndex].candidates[candidateIndex].completedAt = new Date();
+      
+      // Send completion notification to HR
+      try {
+        const candidateDetails = {
+          name: hr.interviews[interviewIndex].candidates[candidateIndex].name || hr.interviews[interviewIndex].candidates[candidateIndex].email,
+          email: hr.interviews[interviewIndex].candidates[candidateIndex].email,
+          answeredQuestions: hr.interviews[interviewIndex].candidates[candidateIndex].answers.length
+        };
+        const interviewDetails = {
+          interviewId: interviewId,
+          role: interview.role,
+          technicalDomain: interview.technicalDomain,
+          questions: interview.questions
+        };
+        await sendInterviewCompletionNotification(hr.email, candidateDetails, interviewDetails);
+      } catch (emailError) {
+        console.error('Failed to send completion notification:', emailError);
+      }
     }
     hr.markModified('interviews');
     await hr.save();
