@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-Allow: /Login
-Allow: /Signup
-Allow: /interview
-Disallow: /Dashboard
-Disallow: /Charts
-
-Sitemap: https://neorecruiter-637u2f7qm-neorecruiters-projects.vercel.app/sitemap.xml

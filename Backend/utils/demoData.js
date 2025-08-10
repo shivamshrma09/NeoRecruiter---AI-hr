@@ -1,6 +1,3 @@
-/**
- * Demo data for testing when database is not available
- */
 
 const demoHrUser = {
   _id: 'demo123',
@@ -171,7 +168,6 @@ const demoHrUser = {
   createdAt: new Date('2023-06-01T08:00:00'),
   Balance: 850
 };
-
 module.exports = {
   demoHrUser
 };

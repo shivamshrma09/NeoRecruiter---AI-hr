@@ -1,14 +1,8 @@
 const express = require('express');
 const router = express.Router();
-
-// Generate interview questions based on role
 router.post('/generate-questions', async (req, res) => {
   try {
     const { role, experience, skills } = req.body;
-    
-    // In a real implementation, this would call the Gemini API
-    // For demo purposes, we'll return mock questions
-    
     const roleQuestions = {
       'Frontend Developer': [
         'Explain the difference between localStorage and sessionStorage.',
@@ -60,8 +54,6 @@ router.post('/generate-questions', async (req, res) => {
         'Describe a situation where you had to make a difficult product decision.'
       ]
     };
-    
-    // Default questions for roles not in our predefined list
     const defaultQuestions = [
       `Tell me about your experience with ${role}.`,
       `What projects have you worked on related to ${role}?`,
@@ -69,32 +61,18 @@ router.post('/generate-questions', async (req, res) => {
       `What are your strengths and weaknesses as a ${role}?`,
       `Where do you see yourself in 5 years in the ${role} field?`
     ];
-    
-    // Return role-specific questions or default questions
     const questions = roleQuestions[role] || defaultQuestions;
-    
     res.json({ questions });
   } catch (err) {
     console.error('Error generating questions:', err);
     res.status(500).json({ message: 'Failed to generate questions', error: err.message });
   }
 });
-
-// Analyze interview responses
 router.post('/analyze-interview', async (req, res) => {
   try {
     const { role, questions, answers } = req.body;
-    
-    // In a real implementation, this would call the Gemini API
-    // For demo purposes, we'll return mock analysis
-    
-    // Calculate scores for answers (60-100 range)
     const scores = answers.map(() => Math.floor(Math.random() * 41) + 60);
-    
-    // Calculate overall score
     const overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
-    
-    // Generate strengths and improvements
     const strengths = [
       'Clear communication skills',
       'Strong technical knowledge',
@@ -102,7 +80,6 @@ router.post('/analyze-interview', async (req, res) => {
       'Structured thinking',
       'Excellent understanding of core concepts'
     ].sort(() => 0.5 - Math.random()).slice(0, 3);
-    
     const improvements = [
       'Could provide more specific examples',
       'Consider discussing alternative approaches',
@@ -110,11 +87,8 @@ router.post('/analyze-interview', async (req, res) => {
       'Focus more on results and impact',
       'Deepen knowledge of underlying principles'
     ].sort(() => 0.5 - Math.random()).slice(0, 2);
-    
-    // Generate question feedback
     const questionFeedback = questions.map((q, i) => {
       const score = scores[i];
-      
       let feedback;
       if (score > 85) {
         feedback = 'Excellent response with comprehensive understanding.';
@@ -123,15 +97,12 @@ router.post('/analyze-interview', async (req, res) => {
       } else {
         feedback = 'Basic understanding demonstrated, but needs deeper knowledge.';
       }
-      
       return {
         question: q,
         score,
         feedback
       };
     });
-    
-    // Create comprehensive analysis object
     const analysis = {
       overallScore,
       strengths,
@@ -145,24 +116,16 @@ router.post('/analyze-interview', async (req, res) => {
       },
       recommendation: overallScore > 80 ? 'Strong Hire' : overallScore > 70 ? 'Potential Hire' : 'Consider Other Candidates'
     };
-    
     res.json(analysis);
   } catch (err) {
     console.error('Error analyzing interview:', err);
     res.status(500).json({ message: 'Failed to analyze interview', error: err.message });
   }
 });
-
-// Send interview report via email
 router.post('/send-report', async (req, res) => {
   try {
     const { email, name, role, analysis } = req.body;
-    
-    // In a real implementation, this would send an email
-    // For demo purposes, we'll just return success
-    
     console.log(`Sending interview report to ${email} for ${role} position`);
-    
     res.json({ 
       success: true, 
       message: `Interview report sent to ${email}` 
@@ -172,5 +135,4 @@ router.post('/send-report', async (req, res) => {
     res.status(500).json({ message: 'Failed to send report', error: err.message });
   }
 });
-
 module.exports = router;

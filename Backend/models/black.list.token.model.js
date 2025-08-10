@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-
 const blackListTokenSchema = new mongoose.Schema({
   token: {
     type: String,
@@ -9,8 +8,7 @@ const blackListTokenSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-    expires: 864000, 
+    expires: 864000,
   },
 });
-
 module.exports = mongoose.model("BlackListToken", blackListTokenSchema);

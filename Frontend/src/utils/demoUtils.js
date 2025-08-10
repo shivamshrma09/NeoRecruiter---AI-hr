@@ -1,10 +1,6 @@
 import api from './api';
 
-/**
- * Get a demo token for a candidate
- * @param {string} email - The candidate's email
- * @returns {Promise<Object>} - The result of the token request
- */
+
 export const getDemoToken = async (email) => {
   try {
     const response = await api.post('/demo/token', { email });
@@ -21,12 +17,7 @@ export const getDemoToken = async (email) => {
   }
 };
 
-/**
- * Validate a demo token
- * @param {string} email - The candidate's email
- * @param {string} token - The demo token to validate
- * @returns {Promise<Object>} - The result of the validation
- */
+
 export const validateDemoToken = async (email, token) => {
   try {
     const response = await api.post('/demo/validate', { email, token });
@@ -43,20 +34,13 @@ export const validateDemoToken = async (email, token) => {
   }
 };
 
-/**
- * Store demo token in localStorage
- * @param {string} email - The candidate's email
- * @param {string} token - The demo token to store
- */
+
 export const storeDemoToken = (email, token) => {
   localStorage.setItem('demoEmail', email);
   localStorage.setItem('demoToken', token);
 };
 
-/**
- * Get stored demo token from localStorage
- * @returns {Object|null} - The stored demo token info or null if not found
- */
+
 export const getStoredDemoToken = () => {
   const email = localStorage.getItem('demoEmail');
   const token = localStorage.getItem('demoToken');
@@ -68,9 +52,7 @@ export const getStoredDemoToken = () => {
   return null;
 };
 
-/**
- * Clear stored demo token from localStorage
- */
+
 export const clearDemoToken = () => {
   localStorage.removeItem('demoEmail');
   localStorage.removeItem('demoToken');

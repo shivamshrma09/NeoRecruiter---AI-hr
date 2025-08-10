@@ -1,6 +1,6 @@
 import api from './api';
 
-// Interview creation and management (HR)
+
 export const createInterview = async (interviewData) => {
   try {
     const response = await api.post('/interview/create', interviewData);
@@ -14,7 +14,7 @@ export const createInterview = async (interviewData) => {
   }
 };
 
-// Candidate interview functions
+
 export const getInterviewDetails = async (interviewId, email) => {
   try {
     const response = await api.get(`/interview/candidate?id=${interviewId}&email=${encodeURIComponent(email)}`);
@@ -73,18 +73,18 @@ export const uploadScreenRecording = async (formData) => {
 
 export const getCandidateCompany = async (email) => {
   try {
-    // Try the correct endpoint first
+
     const response = await api.post('/interview/candidate/company-info', { email });
     return { success: true, data: response.data };
   } catch (error) {
     console.error('Error fetching company info, trying fallback:', error);
     try {
-      // Try fallback endpoint
+
       const fallbackResponse = await api.post('/hr/get-candidate-company', { email });
       return { success: true, data: fallbackResponse.data };
     } catch (fallbackError) {
       console.error('All company info endpoints failed:', fallbackError);
-      // Return mock data as last resort
+
       return { 
         success: true, 
         data: {

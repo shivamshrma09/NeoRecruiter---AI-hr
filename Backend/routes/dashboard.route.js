@@ -1,10 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authHrMiddleware = require('../middlewares/hr.middleware');
-
-// Dashboard data endpoint
 router.get('/data', (req, res) => {
-  // Return hardcoded dashboard data
   res.json({
     totalInterviews: 2,
     totalCandidates: 3,
@@ -42,10 +39,7 @@ router.get('/data', (req, res) => {
     }
   });
 });
-
-// Analytics data endpoint
 router.get('/analytics', (req, res) => {
-  // Return hardcoded analytics data
   res.json({
     interviewStats: {
       total: 2,
@@ -74,5 +68,4 @@ router.get('/analytics', (req, res) => {
     }
   });
 });
-
 module.exports = router;

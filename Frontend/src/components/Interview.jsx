@@ -187,13 +187,11 @@ export default function Interview() {
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [candidateEmail]);
   
-  // Check for stored demo token on component mount
   useEffect(() => {
     const storedDemoData = getStoredDemoToken();
     if (storedDemoData && !candidateEmail) {
       setCandidateEmail(storedDemoData.email);
       
-      // Validate the stored token
       const validateToken = async () => {
         const result = await validateDemoToken(storedDemoData.email, storedDemoData.token);
         if (result.success) {
@@ -264,7 +262,6 @@ export default function Interview() {
     try {
       console.log('Verifying candidate:', form.email);
       
-      // Step 1: Check if candidate exists in database
       const { ok: companyOk, data: companyData } = await apiPost("/hr/get-candidate-company", { email: form.email });
       
       if (!companyOk) {
@@ -276,7 +273,6 @@ export default function Interview() {
       console.log('Candidate verified, company info:', companyData);
       setCompanyInfo(companyData);
       
-      // Step 2: Register candidate with details
       const formData = new FormData();
       formData.append("name", form.name);
       formData.append("email", form.email);
@@ -302,7 +298,6 @@ export default function Interview() {
         return;
       }
       
-      // Success - proceed to permissions
       setQuestions(registerData.questions);
       setCandidateEmail(form.email);
       setCurrentQ(0);
@@ -335,7 +330,6 @@ export default function Interview() {
         if (Notification.permission !== "granted") await Notification.requestPermission();
       }
       setStep(3);
-      // Add welcome message
       const welcomeMsg = `Welcome to ${companyInfo?.companyName || 'our company'}'s AI-powered interview! I'm your virtual interviewer. I'll ask you ${questions.length} questions about the ${questions[0]?.technicalDomain || 'role'}. Please answer each question clearly and take your time. Let's begin!`;
       setMessages([{ from: "bot", text: welcomeMsg }]);
       showNotification("Permissions granted! Starting the interview...", "success");
@@ -369,17 +363,14 @@ export default function Interview() {
     if (currentQ < questions.length) {
       const questionText = questions[currentQ].text;
       
-      // Add question to chat immediately
       setMessages((prevMsgs) => [...prevMsgs, { from: "bot", text: questionText }]);
       setWaitingForAnswer(true);
       
-      // Speak the question with human-like voice
       const utterance = new SpeechSynthesisUtterance(questionText);
-      utterance.rate = 0.9; // Slightly slower for clarity
-      utterance.pitch = 1.1; // Slightly higher pitch
+      utterance.rate = 0.9; 
+      utterance.pitch = 1.1; 
       utterance.volume = 0.8;
       
-      // Try to use a more natural voice
       const voices = window.speechSynthesis.getVoices();
       const preferredVoice = voices.find(voice => 
         voice.name.includes('Google') || 
@@ -396,7 +387,6 @@ export default function Interview() {
         inputRef.current?.focus();
       };
       
-      // Small delay before speaking
       setTimeout(() => {
         window.speechSynthesis.cancel();
         window.speechSynthesis.speak(utterance);
@@ -409,7 +399,6 @@ export default function Interview() {
       setWaitingForAnswer(false);
       showNotification("Interview completed successfully!", "success");
       
-      // Speak completion message
       const utterance = new SpeechSynthesisUtterance(completionMessage);
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
@@ -431,7 +420,6 @@ export default function Interview() {
     const currentQuestionObj = questions[currentQ] || {};
     const { text, expectedAnswer } = currentQuestionObj;
     
-    // Get demo token if needed
     const storedDemoData = getStoredDemoToken();
     let accessToken = storedDemoData?.token;
     
@@ -459,7 +447,6 @@ export default function Interview() {
       return;
     }
     
-    // Show simple acknowledgment (no AI scores to candidate)
     const acknowledgments = [
       "Thank you for your response. Let's move to the next question.",
       "Great! I've recorded your answer. Moving forward.",

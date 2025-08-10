@@ -1,7 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
 const scoreSchema = new mongoose.Schema({
   Relevance: String,
   ContentDepth: String,
@@ -12,13 +11,10 @@ const scoreSchema = new mongoose.Schema({
   aiFeedback: String,      
   improvement: String     
 });
-
-
 const questionSchema = new mongoose.Schema({
   text: String,
   expectedAnswer: String,
 });
-
 const candidateSchema = new mongoose.Schema({
   email: String,
   name: String,
@@ -35,7 +31,6 @@ const candidateSchema = new mongoose.Schema({
   accessToken: String,
   lastReminderSent: Date
 });
-
 const interviewSchema = new mongoose.Schema({
   role: { type: String, required: true },
   technicalDomain: { type: String },
@@ -43,7 +38,6 @@ const interviewSchema = new mongoose.Schema({
   candidates: [candidateSchema],
   createdAt: { type: Date, default: Date.now },
 });
-
 const hrSchema = new mongoose.Schema({
   companyName: {
     type: String,
@@ -65,17 +59,29 @@ const hrSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   Balance: { type: Number, default: 1000 },
 });
-
 hrSchema.methods.generateAuthToken = function () {
-  return jwt.sign({ _id: this._id }, process.env.JWT_SECRET, {
+  const jwtSecret = process.env.JWT_SECRET;
+  console.log('JWT_SECRET exists:', !!jwtSecret);
+  if (!jwtSecret) {
+    throw new Error('JWT_SECRET not found in environment variables');
+  }
+  const token = jwt.sign({ _id: this._id, email: this.email }, jwtSecret, {
     expiresIn: "1d",
   });
+  console.log('Token generated successfully');
+  return token;
 };
 hrSchema.methods.comparePassword = async function (password) {
-  return await bcrypt.compare(password, this.password);
+  console.log('Comparing password for user:', this.email);
+  console.log('Stored password hash exists:', !!this.password);
+  const isValid = await bcrypt.compare(password, this.password);
+  console.log('Password comparison result:', isValid);
+  return isValid;
 };
 hrSchema.statics.hashPassword = async function (password) {
-  return await bcrypt.hash(password, 10);
+  console.log('Hashing password...');
+  const hashedPassword = await bcrypt.hash(password, 10);
+  console.log('Password hashed successfully');
+  return hashedPassword;
 };
-
 module.exports = mongoose.model("Hr", hrSchema);

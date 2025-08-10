@@ -19,7 +19,6 @@ const UserLogin = () => {
     setLoading(true)
     setError('')
 
-    // Validate inputs
     if (!email || !password) {
       setError('Email and password are required')
       setLoading(false)
@@ -37,14 +36,11 @@ const UserLogin = () => {
       if (response.status === 200) {
         const data = response.data;
         
-        // First store in localStorage
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         
-        // Then update context
         login(data.user, data.token);
         
-        // Navigate immediately without timeout
         navigate('/Dashboard');
       }
     } catch (err) {
@@ -56,158 +52,136 @@ const UserLogin = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 p-4">
-      <div className="bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row w-full max-w-4xl animate-fade-in">
-        <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-700 to-blue-900 text-white p-10 flex flex-col justify-center items-center text-center">
-          <div className="mb-6">
-            <span className="text-6xl font-black tracking-tight select-none flex items-center space-x-2">
-              <span className="text-white">Neo</span>
-              <span className="text-blue-200">Recruiter</span>
-            </span>
-          </div>
-          <h2 className="text-4xl font-bold mb-4">Welcome Back!</h2>
-          <p className="text-lg text-blue-200 leading-relaxed">
-            Log in to continue transforming your recruitment process with
-            cutting-edge AI.
-          </p>
-          <div className="mt-8">
-            <FaRobot className="text-8xl text-blue-300 opacity-75 animate-bounce-slow" />
-          </div>
-        </div>
-
-        <div className="w-full md:w-1/2 p-10 flex flex-col justify-center">
-          <h2 className="text-3xl font-bold text-blue-900 mb-8 text-center">
-            Login to Your Account
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900">
+            <span className="text-blue-600">Neo</span>Recruiter
+          </h1>
+          <h2 className="mt-6 text-2xl font-semibold text-gray-900">
+            Welcome back
           </h2>
+          <p className="mt-2 text-gray-600">
+            Sign in to your account to continue
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-6 shadow-sm rounded-lg border border-gray-200">
+         
 
           {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-              <span className="block sm:inline">{error}</span>
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6" role="alert">
+              <span className="text-sm">{error}</span>
             </div>
           )}
 
-          <form onSubmit={submitHandler}>
+          <form onSubmit={submitHandler} className="space-y-6">
             <div>
-              <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
-                Email Address
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email address
               </label>
-              <div className="relative">
-                <FaEnvelope className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  className="shadow-sm appearance-none border rounded-lg w-full py-3 px-10 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                  placeholder="your.email@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  autoComplete="email"
-                />
-              </div>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Enter your email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+              />
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
                 Password
               </label>
-              <div className="relative">
-                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                <input
-                  type="password"
-                  id="password"
-                  name="password"
-                  className="shadow-sm appearance-none border rounded-lg w-full py-3 px-10 text-gray-700 mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  autoComplete="current-password"
-                />
-              </div>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+              />
             </div>
 
             <div className="flex items-center justify-between">
-              <label className="flex items-center text-gray-600 text-sm">
+              <label className="flex items-center">
                 <input
                   type="checkbox"
-                  className="form-checkbox h-4 w-4 text-blue-600 rounded mr-2"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                Remember Me
+                <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
-              <Link to="/forgot-password" className="inline-block align-baseline font-bold text-sm text-blue-700 hover:text-blue-900 transition duration-200">
-                Forgot Password?
+              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+                Forgot password?
               </Link>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-700 hover:bg-blue-900 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition duration-300 ease-in-out transform hover:scale-105 flex items-center justify-center"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center"
               disabled={loading}
             >
               {loading ? (
                 <>
-                  <FaSpinner className="animate-spin mr-2" /> Logging in...
+                  <FaSpinner className="animate-spin mr-2" /> Signing in...
                 </>
               ) : (
-                "Login"
+                "Sign in"
               )}
             </button>
           </form>
 
-          <div className="mt-8 text-center text-gray-600">
-            Don't have an account?{" "}
-            <Link to="/Signup" className="font-bold text-blue-700 hover:text-blue-900 transition duration-200">
-              Sign Up
-            </Link>
+         
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                onClick={() => alert("Google Login clicked! (Demo only)")}
+              >
+                <FaGoogle className="text-red-500" />
+                <span className="ml-2">Google</span>
+              </button>
+              <button
+                className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-lg shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+                onClick={() => alert("LinkedIn Login clicked! (Demo only)")}
+              >
+                <FaLinkedin className="text-blue-600" />
+                <span className="ml-2">LinkedIn</span>
+              </button>
+            </div>
           </div>
 
-          <div className="flex items-center justify-center mt-6">
-            <span className="border-b w-1/4 lg:w-1/3"></span>
-            <span className="text-xs text-gray-500 uppercase mx-2">
-              Or Login with
+          <div className="mt-6 text-center">
+            <span className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <Link to="/Signup" className="font-medium text-blue-600 hover:text-blue-500">
+                Sign up
+              </Link>
             </span>
-            <span className="border-b w-1/4 lg:w-1/3"></span>
-          </div>
-
-          <div className="flex justify-center gap-4 mt-6">
-            <button
-              className="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-gray-700 hover:bg-gray-50 transition duration-200 transform hover:scale-105"
-              onClick={() => alert("Google Login clicked! (Demo only)")}
-            >
-              <FaGoogle className="mr-2 text-xl text-red-500" /> Google
-            </button>
-            <button
-              className="flex items-center justify-center px-4 py-2 border border-blue-500 rounded-lg shadow-sm text-blue-700 hover:bg-blue-50 transition duration-200 transform hover:scale-105"
-              onClick={() => alert("LinkedIn Login clicked! (Demo only)")}
-            >
-              <FaLinkedin className="mr-2 text-xl text-blue-700" /> LinkedIn
-            </button>
           </div>
         </div>
       </div>
-      <style>{`
-        .animate-fade-in {
-          animation: fadeIn 1s ease-out forwards;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-bounce-slow {
-          animation: bounceSlow 3s infinite ease-in-out;
-        }
-        @keyframes bounceSlow {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-15px);
-          }
-        }
-      `}</style>
     </div>
   )
 }
