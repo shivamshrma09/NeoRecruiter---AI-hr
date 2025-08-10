@@ -5,7 +5,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 // Use local worker file
 pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
-const genAI = new GoogleGenerativeAI("AIzaSyDLrzJm04tBsRVYbRrRU1W7PRKRStsiSGM");
+const genAI = new GoogleGenerativeAI("AIzaSyASTUxv5-hEw9ya2d4pcqiIOS9tL5AKnfs");
 
 // Simple loading spinner component
 const LoadingSpinner = ({ size = 50, color = "#2563eb" }) => (
