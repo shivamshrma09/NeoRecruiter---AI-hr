@@ -1,12 +1,9 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL || 'http://localhost:4000',
-
+  baseURL: 'https://neorecruiter-ai-hr.onrender.com',
   headers: { 'Content-Type': 'application/json' },
-
 });
-
 
 const getStoredToken = () => {
   return localStorage.getItem('token');
@@ -15,12 +12,9 @@ const getStoredToken = () => {
 api.interceptors.request.use(
   async (config) => {
     const token = getStoredToken();
-    
     if (token) {
-  
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
     return config;
   },
   (error) => Promise.reject(error)
@@ -30,40 +24,27 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    
 
     if (error.response && error.response.status === 401) {
-
       if (!window.location.pathname.includes('/login')) {
-        console.error('Authentication error:', error.response.data);
-        
-
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        
-
         setTimeout(() => {
           window.location.href = '/login';
         }, 1000);
       }
     }
     
-
     if (originalRequest?.url === '/hr/interviews' && (!error.response || error.response.status >= 400)) {
-      console.log('Trying fallback interviews endpoint...');
       try {
-
         const fallbackResponse = await axios({
           ...originalRequest,
           method: 'GET',
           url: '/mock/data',
           baseURL: originalRequest.baseURL
         });
-        console.log('Fallback successful, using mock data');
         return fallbackResponse;
       } catch (fallbackError) {
-        console.error('Fallback also failed:', fallbackError.message);
-
         return {
           data: {
             interviews: [
@@ -93,9 +74,6 @@ api.interceptors.response.use(
         };
       }
     }
-    
-
-    console.error(`API Error (${originalRequest?.url}):`, error.message);
     
     return Promise.reject(error);
   }

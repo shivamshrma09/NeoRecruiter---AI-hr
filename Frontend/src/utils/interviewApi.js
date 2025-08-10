@@ -1,92 +1,77 @@
-import api from './api';
+const BASE_URL = 'https://neorecruiter-ai-hr.onrender.com';
 
-
-export const createInterview = async (interviewData) => {
+const apiCall = async (endpoint, options = {}) => {
   try {
-    const response = await api.post('/interview/create', interviewData);
-    return { success: true, data: response.data };
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      headers: { 'Content-Type': 'application/json', ...options.headers },
+      ...options
+    });
+    const data = await response.json();
+    return { success: response.ok, data };
   } catch (error) {
-    console.error('Error creating interview:', error);
-    return { 
-      success: false, 
-      error: error.response?.data?.message || 'Failed to create interview' 
-    };
+    return { success: false, error: error.message };
   }
 };
 
+export const createInterview = async (interviewData) => {
+  return await apiCall('/interview/create', {
+    method: 'POST',
+    body: JSON.stringify(interviewData)
+  });
+};
 
 export const getInterviewDetails = async (interviewId, email) => {
-  try {
-    const response = await api.get(`/interview/candidate?id=${interviewId}&email=${encodeURIComponent(email)}`);
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error('Error fetching interview details:', error);
-    return { 
-      success: false, 
-      error: error.response?.data?.message || 'Failed to fetch interview details' 
-    };
-  }
+  return await apiCall(`/interview/candidate?id=${interviewId}&email=${encodeURIComponent(email)}`);
 };
 
 export const registerCandidate = async (formData) => {
   try {
-    const response = await api.post('/interview/candidate/register', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    const response = await fetch(`${BASE_URL}/interview/candidate/register`, {
+      method: 'POST',
+      body: formData
     });
-    return { success: true, data: response.data };
+    const data = await response.json();
+    return { success: response.ok, data };
   } catch (error) {
-    console.error('Error registering candidate:', error);
-    return { 
-      success: false, 
-      error: error.response?.data?.message || 'Failed to register candidate' 
-    };
+    return { success: false, error: error.message };
   }
 };
 
 export const submitAnswer = async (answerData) => {
-  try {
-    const response = await api.post('/interview/candidate/submit-answer', answerData);
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error('Error submitting answer:', error);
-    return { 
-      success: false, 
-      error: error.response?.data?.message || 'Failed to submit answer' 
-    };
-  }
+  return await apiCall('/interview/candidate/submit-answer', {
+    method: 'POST',
+    body: JSON.stringify(answerData)
+  });
 };
 
 export const uploadScreenRecording = async (formData) => {
   try {
-    const response = await api.post('/interview/candidate/upload-recording', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+    const response = await fetch(`${BASE_URL}/interview/candidate/upload-recording`, {
+      method: 'POST',
+      body: formData
     });
-    return { success: true, data: response.data };
+    const data = await response.json();
+    return { success: response.ok, data };
   } catch (error) {
-    console.error('Error uploading screen recording:', error);
-    return { 
-      success: false, 
-      error: error.response?.data?.message || 'Failed to upload screen recording' 
-    };
+    return { success: false, error: error.message };
   }
 };
 
 export const getCandidateCompany = async (email) => {
-  try {
-
-    const response = await api.post('/interview/candidate/company-info', { email });
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error('Error fetching company info, trying fallback:', error);
-    try {
-
-      const fallbackResponse = await api.post('/hr/get-candidate-company', { email });
-      return { success: true, data: fallbackResponse.data };
-    } catch (fallbackError) {
-      console.error('All company info endpoints failed:', fallbackError);
-
-      return { 
-        success: true, 
+  const result = await apiCall('/interview/candidate/company-info', {
+    method: 'POST',
+    body: JSON.stringify({ email })
+  });
+  
+  if (!result.success) {
+    const fallback = await apiCall('/hr/get-candidate-company', {
+      method: 'POST',
+      body: JSON.stringify({ email })
+    });
+    
+    if (!fallback.success) {
+      return {
+        success: true,
         data: {
           companyName: 'NeoRecruiter Demo',
           email: 'interview123@gmail.com',
@@ -95,5 +80,7 @@ export const getCandidateCompany = async (email) => {
         }
       };
     }
+    return fallback;
   }
+  return result;
 };
