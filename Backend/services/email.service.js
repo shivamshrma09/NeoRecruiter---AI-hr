@@ -5,13 +5,22 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false,
   auth: {
-    user: process.env.EMAIL_USER || 'neorecruiter.ai@gmail.com',
-    pass: process.env.EMAIL_PASS || 'your-app-password'
+    user: process.env.EMAIL_USER || 'shivamsharma27107@gmail.com',
+    pass: process.env.EMAIL_PASS || 'fboiihkncmqrrtiz'
   },
   tls: {
     rejectUnauthorized: false
   }
 })
+
+// Verify transporter configuration
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('Email transporter configuration error:', error);
+  } else {
+    console.log('Email server is ready to send messages');
+  }
+});
 const sendInterviewInvitation = async (candidateEmail, interviewDetails) => {
   try {
     const interviewLink = interviewDetails.interviewLink || 
@@ -63,11 +72,11 @@ const sendInterviewInvitation = async (candidateEmail, interviewDetails) => {
       `
     }
     try {
-      await transporter.sendMail(mailOptions)
-      console.log(`Interview invitation sent to ${candidateEmail} for ${interviewDetails.role} position`)
+      const info = await transporter.sendMail(mailOptions);
+      console.log(`Interview invitation sent to ${candidateEmail} for ${interviewDetails.role} position. Message ID: ${info.messageId}`);
     } catch (emailError) {
       console.error('Email sending failed:', emailError)
-      throw emailError; // Propagate the error to handle it in the calling function
+      throw emailError;
     }
     return { success: true, message: 'Email sent successfully', email: candidateEmail }
   } catch (error) {
