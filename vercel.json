@@ -1,0 +1,13 @@
+{
+  "build": {
+    "env": {
+      "VITE_BASE_URL": "https://neorecruiter-ai-hr.onrender.com"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

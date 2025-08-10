@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://neorecruiter-ai-hr.onrender.com',
+  baseURL: import.meta.env.VITE_BASE_URL || 'https://neorecruiter-ai-hr.onrender.com',
   headers: { 'Content-Type': 'application/json' },
 });
 

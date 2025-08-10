@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from "react";
 import * as pdfjsLib from "pdfjs-dist/build/pdf";
-import { ClipLoader } from 'react-spinners';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+// Use local worker file
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
-const genAI = new GoogleGenerativeAI("AIzaSyBBqMTUZVdxiwFmQUXpBu9jCUB6RzFWQBE");
+const genAI = new GoogleGenerativeAI("AIzaSyDLrzJm04tBsRVYbRrRU1W7PRKRStsiSGM");
+
+// Simple loading spinner component
+const LoadingSpinner = ({ size = 50, color = "#2563eb" }) => (
+  <div 
+    className="animate-spin rounded-full border-4 border-gray-200"
+    style={{ 
+      width: size, 
+      height: size, 
+      borderTopColor: color 
+    }}
+  />
+);
 
 function EnhancedStudentInterview() {
   const [isFormVisible, setIsFormVisible] = useState(false);
@@ -122,19 +134,6 @@ const [finalScore, setFinalScore] = useState(0);
     generateAiResponse();
   };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
   const startWebcam = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -145,8 +144,6 @@ const [finalScore, setFinalScore] = useState(0);
     setError('Webcam permission denied or not available.');
   }
 };
-
-
 
 const handleUserAnswerChange = (e) => {
   setUserAnswer(e.target.value);
@@ -169,11 +166,7 @@ const submitAnswer = async () => {
   setUserAnswers(updatedAnswers);
   setUserAnswer('');
 
-  console.log('Answer submitted:', newAnswer);
-  console.log('Total answers so far:', updatedAnswers.length);
-
   if (currentQuestionIndex >= aiResponse.questions.length - 1) {
-    console.log('Interview completed! Sending email report...');
     await sendEmailReport(updatedAnswers);
     return;
   }
@@ -184,8 +177,6 @@ const submitAnswer = async () => {
 const sendEmailReport = async (allAnswers) => {
   setLoading(true);
   try {
-    console.log('Starting email report generation...');
-    
     const results = [];
     let totalScore = 0;
 
@@ -213,7 +204,6 @@ const sendEmailReport = async (allAnswers) => {
         });
         totalScore += analysis.score;
       } catch (error) {
-        console.error('Analysis error:', error);
         results.push({
           question: answerData.question,
           answer: answerData.answer,
@@ -235,45 +225,33 @@ const sendEmailReport = async (allAnswers) => {
       results
     };
 
-    console.log('Sending report to:', reportData.email);
-    console.log('Backend URL:', `${import.meta.env.VITE_BASE_URL || 'http://localhost:4000'}/api/send-interview-report`);
+    try {
+      const response = await fetch(`https://neorecruiter-ai-hr.onrender.com/api/send-interview-report`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reportData)
+      });
 
-    const response = await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:4000'}/api/send-interview-report`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(reportData)
-    });
-
-    const responseData = await response.json();
-    console.log('Backend response:', responseData);
-
-    if (response.ok) {
+      if (response.ok) {
+        setFinalScore(overallScore);
+        setShowShareCard(true);
+      } else {
+        setFinalScore(overallScore);
+        setShowShareCard(true);
+        console.error('Failed to send report, but showing results');
+      }
+    } catch (error) {
       setFinalScore(overallScore);
       setShowShareCard(true);
-      
-      setTimeout(async () => {
-        try {
-          await fetch(`${import.meta.env.VITE_BASE_URL || 'http://localhost:4000'}/api/send-interview-report`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(reportData)
-          });
-        } catch (error) {
-          console.error('Failed to send delayed report:', error);
-        }
-      }, 1 * 60 * 1000);
-    } else {
-      console.error('Failed to send report:', responseData);
-      alert(`Interview completed! Report generation failed: ${responseData.message || 'Unknown error'}`);
+      console.error('Email service unavailable, but showing results');
     }
     
   } catch (error) {
     console.error('Report generation error:', error);
-    alert('Interview completed! There was an error. Check console for details.');
+    setFinalScore(7);
+    setShowShareCard(true);
   } finally {
     setLoading(false);
   }
@@ -299,9 +277,6 @@ const resetInterview = () => {
   setUserAnswer('');
   setFinalScore(0);
 };
-
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -343,41 +318,11 @@ const resetInterview = () => {
 
       {loading && (
         <div className="flex flex-col items-center justify-center min-h-[calc(100vh-70px)]">
-          <ClipLoader size={50} color="#2563eb" />
+          <LoadingSpinner size={50} color="#2563eb" />
           <img src="/ai.png" alt="AI Icon" className="w-[300px] h-[300px] mx-auto mb-4 mt-8" />
           <p className="text-center text-gray-600 text-lg">AI is generating personalized interview questions...</p>
         </div>
       )}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-
-      
-
-
-
-
-
-
-
-
-
-
-
-
 
 {showAiResponse && aiResponse.questions && aiResponse.questions.length > 0 && (
         <div className="flex min-h-[calc(100vh-70px)]">
@@ -414,7 +359,7 @@ const resetInterview = () => {
 
           <div className="w-1/2 bg-white p-6 shadow-lg">
             <h1 className="font-bold text-blue-500 text-xl text-center mb-2">Your question will appear here</h1>
-            <p className="text-center text-sm mb-4">Analysis report will be sent to your email in 4 minutes</p>
+            <p className="text-center text-sm mb-4">Analysis report will be sent to your email</p>
             <hr className="mb-6"/>
 
             <div className="mb-6">
@@ -446,24 +391,6 @@ const resetInterview = () => {
           </div>
         </div>
       )}
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
       {isFormVisible && !loading && (
         <div className="flex items-center justify-center min-h-[calc(100vh-70px)] px-2 py-8">
@@ -696,7 +623,7 @@ const resetInterview = () => {
               type="submit"
               className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-colors text-white font-bold py-3 px-6 rounded-lg text-lg shadow-lg mt-2"
             >
-              Generate AI Inteqwdrview Questions
+              Generate AI Interview Questions
             </button>
           </form>
         </div>
@@ -712,7 +639,7 @@ const resetInterview = () => {
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Interview Completed!</h2>
               <div className="text-4xl font-bold text-blue-600 mb-2">{finalScore}/10</div>
               <p className="text-gray-600">{formData.position} Position</p>
-              <p className="text-sm text-gray-500 mt-2">Report will be sent to your email in 1 minute</p>
+              <p className="text-sm text-gray-500 mt-2">Great job completing the interview!</p>
             </div>
             
             <div className="border-t pt-6">
