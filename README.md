@@ -1,4 +1,4 @@
-# 🚀 NeoRecruiter - AI-Powered Interview Platform
+# 🚀 NeoRecruiter - Complete Career & Recruitment Ecosystem
 
 <div align="center">
   <img src="https://img.shields.io/badge/React-18.0+-blue?style=for-the-badge&logo=react" alt="React" />
@@ -9,15 +9,24 @@
 
 ## 📋 Overview
 
-NeoRecruiter is a **cutting-edge AI-powered interview platform** that revolutionizes the hiring process. It enables HR professionals to conduct intelligent interviews, evaluate candidates automatically, and make data-driven hiring decisions with advanced analytics and anti-cheating detection.
+NeoRecruiter is a **comprehensive career development and recruitment platform** that combines AI-powered interviews with mentorship, hackathons, internships, and job opportunities. It serves both students seeking career growth and HR professionals looking for top talent.
 
 ### 🌟 What Makes NeoRecruiter Special?
 
-- **🤖 AI-Powered Evaluation**: Advanced Google Gemini AI analyzes candidate responses
+**For Students:**
+- **🤖 AI-Powered Mock Interviews**: Practice with Google Gemini AI feedback
+- **👨🏫 Expert Mentorship**: Connect with industry professionals from top companies
+- **🏆 Hackathons & Competitions**: Participate in coding challenges and win prizes
+- **💼 Internship Opportunities**: Find internships at leading tech companies
+- **📚 Career Resources**: Access learning materials and career guidance
+- **📊 Progress Tracking**: Monitor your interview performance and improvement
+
+**For HR & Recruiters:**
 - **🛡️ Anti-Cheating System**: Comprehensive monitoring and detection
 - **📊 Real-time Analytics**: Live insights and performance metrics
-- **🎓 Student Practice Mode**: Mock interviews for skill development
-- **📧 Automated Reporting**: Detailed analysis sent via email
+- **📧 Automated Reporting**: Detailed candidate analysis via email
+- **🎯 Smart Candidate Matching**: AI-powered candidate recommendations
+- **📈 Interview Management**: Complete interview lifecycle management
 
 ## 🌐 Live Demo
 
@@ -30,34 +39,77 @@ NeoRecruiter is a **cutting-edge AI-powered interview platform** that revolution
 
 ## ✨ Key Features
 
-### 🤖 AI-Powered Analysis
-- **🎯 Intelligent Scoring**: Advanced AI evaluates candidate responses using Google Gemini
+### 🎓 Student Features
+
+#### 🤖 AI-Powered Mock Interviews
+- **🎯 Intelligent Scoring**: Advanced AI evaluates responses using Google Gemini
 - **⚡ Real-time Feedback**: Instant analysis and improvement suggestions
 - **📈 Multi-criteria Assessment**: Relevance, Content Depth, Communication Skills, Sentiment Analysis
-- **🔄 Fallback Scoring**: Intelligent backup system when AI is unavailable
-- **📊 Performance Metrics**: Detailed scoring with visual analytics
+- **🎯 Role-Specific Questions**: Personalized questions for different job roles
+- **📧 Email Reports**: Complete analysis sent directly to your email
+- **🔄 Unlimited Practice**: Take multiple mock interviews to improve
+- **📊 Progress Tracking**: Monitor your improvement over time
 
-### 🛡️ Anti-Cheating Detection
-- **👁️ Tab Switch Detection**: Monitors when candidates leave the interview page
-- **📋 Copy/Paste Monitoring**: Detects suspicious copy-paste activities
+#### 👨🏫 Mentorship Program
+- **🌟 Expert Mentors**: Connect with professionals from Amazon, Google, Microsoft, Meta
+- **📅 1-on-1 Sessions**: Personalized career guidance and interview preparation
+- **💡 Industry Insights**: Learn about latest trends and technologies
+- **🎯 Career Planning**: Get roadmap for your dream job
+- **📚 Resource Sharing**: Access exclusive learning materials
+
+#### 🏆 Hackathons & Competitions
+- **💻 Coding Challenges**: Participate in regular hackathons
+- **🏅 Prizes & Recognition**: Win cash prizes and certificates
+- **🤝 Team Building**: Collaborate with other developers
+- **🚀 Project Showcase**: Display your projects to potential employers
+- **📈 Skill Development**: Improve coding and problem-solving skills
+
+#### 💼 Internship & Job Portal
+- **🔍 Job Search**: Find internships and full-time positions
+- **🎯 Smart Matching**: AI-powered job recommendations
+- **📝 Application Tracking**: Monitor your application status
+- **💼 Company Profiles**: Learn about top tech companies
+- **📊 Salary Insights**: Get market salary information
+
+### 🏢 HR & Recruiter Features
+
+#### 🛡️ Advanced Interview System
+- **👁️ Anti-Cheating Detection**: Tab switch, copy-paste monitoring
 - **🎥 Screen Recording**: Optional full-screen recording for verification
-- **🚨 Visual Indicators**: Red alerts for flagged candidates in dashboard
+- **🚨 Real-time Alerts**: Visual indicators for suspicious activities
 - **📝 Activity Logging**: Complete audit trail of candidate actions
 
-### 📊 Comprehensive HR Dashboard
+#### 📊 Comprehensive Dashboard
 - **📈 Real-time Statistics**: Live interview and candidate metrics
 - **🏆 Candidate Ranking**: Automatic sorting by AI scores (highest first)
 - **🔍 Detailed Analytics**: In-depth performance insights with AI feedback
-- **💰 Balance Management**: ₹50 per candidate pricing system
+- **💰 Balance Management**: Transparent pricing system
 - **📧 Email Integration**: Automated candidate invitations and reports
 
-### 🎓 Student Mock Interview System
-- **🏃‍♂️ Self-Assessment Mode**: Students can practice interviews independently
-- **🎯 Role-Specific Questions**: Personalized questions generated by Gemini AI
-- **📋 Comprehensive Analysis**: Detailed feedback on all aspects of performance
-- **📧 Email Reports**: Complete analysis sent directly to student's email
-- **🔄 Unlimited Practice**: Students can take multiple mock interviews
-- **📊 Progress Tracking**: Monitor improvement over time
+#### 🎯 Smart Recruitment Tools
+- **🤖 AI Candidate Screening**: Automated initial screening process
+- **📋 Custom Question Banks**: Create role-specific interview questions
+- **📊 Performance Analytics**: Track hiring success rates
+- **🔄 Interview Scheduling**: Automated scheduling system
+- **📈 Reporting Dashboard**: Generate detailed hiring reports
+
+## 🌟 Platform Benefits
+
+### 👨🎓 For Students
+- **Free Mock Interviews**: Practice unlimited times at no cost
+- **Expert Mentorship**: Learn from industry professionals
+- **Skill Development**: Improve through hackathons and competitions
+- **Job Opportunities**: Access to exclusive internships and jobs
+- **Career Growth**: Comprehensive career development ecosystem
+- **AI-Powered Feedback**: Get detailed analysis of your performance
+
+### 🏢 For Companies
+- **Quality Candidates**: Access pre-screened, skilled candidates
+- **Efficient Hiring**: Reduce time-to-hire with AI-powered screening
+- **Cost Effective**: Transparent pricing with measurable ROI
+- **Anti-Cheating**: Ensure interview integrity with advanced monitoring
+- **Data-Driven**: Make informed decisions with detailed analytics
+- **Scalable Solution**: Handle high-volume recruitment efficiently
 
 ## 🛠️ Technology Stack
 
@@ -119,7 +171,7 @@ NeoRecruiter/
 3. **Environment Configuration**
    Create a `.env` file in the Backend directory:
    ```env
-   PORT=3000
+   PORT=4000
    MONGO_URI=mongodb://localhost:27017/neorecruiter
    JWT_SECRET=your-super-secret-jwt-key-here
    EMAIL_USER=your-email@gmail.com
@@ -129,9 +181,9 @@ NeoRecruiter/
 
 4. **Start Development Server**
    ```bash
-   npm run dev
+   npm start
    ```
-   Server will run on `http://localhost:3000`
+   Server will run on `http://localhost:4000`
 
 ### 🎨 Frontend Setup
 
@@ -148,7 +200,7 @@ NeoRecruiter/
 3. **Environment Configuration**
    Create a `.env` file in the Frontend directory:
    ```env
-   VITE_BASE_URL=http://localhost:3000
+   VITE_BASE_URL=http://localhost:4000
    ```
 
 4. **Start Development Server**
@@ -169,73 +221,21 @@ NeoRecruiter/
    - Generate an app-specific password
    - Use this password in the `EMAIL_PASS` field
 
-## 📸 Application Screenshots
+## 🎯 Getting Started
 
-### 🏢 HR Workflow
+### 👨🎓 For Students
+1. Visit [neorecruiter.vercel.app](https://neorecruiter.vercel.app/)
+2. Click "Student" and start your first mock interview
+3. Get AI-powered feedback and improve your skills
+4. Explore mentorship and internship opportunities
+5. Participate in hackathons and competitions
 
-#### 1. 🏠 Landing Page
-*Professional landing page with clear call-to-actions*
-<img width="1892" height="920" alt="Landing Page" src="https://github.com/user-attachments/assets/70d13e71-61bd-4ae4-a2e7-a367d60fe37c" />
-<img width="1918" height="906" alt="Landing Page Features" src="https://github.com/user-attachments/assets/60e1dbf9-5d76-4159-824c-9b1b26bfeb3f" />
-
-#### 2. 🔐 HR Authentication
-*Secure login system for HR professionals*
-<img width="1915" height="910" alt="HR Login" src="https://github.com/user-attachments/assets/7b384ee7-7e0f-477c-ac19-22430bb9c324" />
-
-#### 3. 📝 HR Registration
-*Easy signup process with validation*
-<img width="1919" height="916" alt="HR Signup" src="https://github.com/user-attachments/assets/aca9bf0d-3df8-4507-851d-3aa708316543" />
-
-#### 4. 📊 HR Dashboard
-*Comprehensive dashboard with real-time analytics*
-<img width="1900" height="909" alt="HR Dashboard" src="https://github.com/user-attachments/assets/aba90b70-cc94-4c76-90b4-c96e84353606" />
-
-#### 5. ➕ Create Interview
-*Intuitive interview creation with custom questions*
-<img width="1893" height="914" alt="Create Interview" src="https://github.com/user-attachments/assets/086cdc43-2ebd-4e32-ae91-50302840ae0b" />
-<img width="1907" height="905" alt="Interview Questions" src="https://github.com/user-attachments/assets/f73b23aa-dfc6-476c-8700-b938c12e14d9" />
-
-#### 6. 👥 Candidate Management
-*Easy candidate addition via email invitations*
-<img width="1895" height="910" alt="Add Candidates" src="https://github.com/user-attachments/assets/6f76cded-755f-42ae-b88d-79a1974b9444" />
-
-#### 7. 📈 Performance Analytics
-*AI-powered insights and detailed candidate analysis*
-<img width="1897" height="909" alt="Performance Analytics" src="https://github.com/user-attachments/assets/c4e3bcd1-9601-4b3f-873a-b1318069ef85" />
-<img width="1904" height="906" alt="Candidate Scores" src="https://github.com/user-attachments/assets/764eff87-d024-45ef-9b4b-c0d66f4f8d1d" />
-<img width="1912" height="914" alt="Detailed Analysis" src="https://github.com/user-attachments/assets/31aa8461-1ba1-4ca3-8c0b-4c2005aaaf52" />
-<img width="1846" height="916" alt="AI Feedback" src="https://github.com/user-attachments/assets/ca05f265-3de4-4945-a4b1-636adf751a4c" />
-<img width="1909" height="908" alt="Performance Metrics" src="https://github.com/user-attachments/assets/160e5313-fe26-4186-9699-cc16b7dd3a2e" />
-
-#### 8. ❓ Help & Support
-*Comprehensive help section for HR users*
-<img width="1910" height="913" alt="Help Section" src="https://github.com/user-attachments/assets/9c7a3f32-128a-4cde-86a5-9f965b99cf96" />
-
-### 👨‍💼 Candidate Experience
-
-#### 1. 🎯 Interview Interface
-*Clean and focused interview environment*
-<img width="1899" height="909" alt="Candidate Interview" src="https://github.com/user-attachments/assets/16910e3c-3fcf-4f91-97b1-0bd58d6269ba" />
-<img width="1908" height="906" alt="Question Interface" src="https://github.com/user-attachments/assets/d0dd0590-cf56-44c6-b010-5606ee9b82bb" />
-<img width="1912" height="906" alt="Answer Submission" src="https://github.com/user-attachments/assets/1ae91cb9-0680-4f8a-a1b5-243b3831e6fd" />
-
-### 🎓 Student Mock Interview System
-
-#### 1. 🏠 Student Landing Page
-*Dedicated section for students to practice interviews*
-<img width="1868" height="914" alt="Student Mock Interview" src="https://github.com/user-attachments/assets/df169724-8a52-43ad-a0ae-ab1e92b85c1a" />
-
-#### 2. 📝 Mock Interview Setup
-*Students can select their role and start practicing*
-<img width="1871" height="1075" alt="Mock Interview Setup" src="https://github.com/user-attachments/assets/02c1ef08-aeec-46b5-8602-1564a5e9ccd6" />
-
-#### 3. 📧 Email Analysis Report
-*Detailed performance analysis sent to student's email*
-<img width="635" height="853" alt="Email Report" src="https://github.com/user-attachments/assets/820f03a6-c065-4998-90dc-79987c77ded3" />
-
-#### 4. 📊 Comprehensive Feedback
-*AI-powered analysis with improvement suggestions*
-<img width="1919" height="1079" alt="Student Feedback" src="https://github.com/user-attachments/assets/59125e8d-23d8-4744-bc95-4d9fa697d951" />
+### 🏢 For HR/Recruiters
+1. Visit [neorecruiter.vercel.app](https://neorecruiter.vercel.app/)
+2. Click "HR" and create your recruiter account
+3. Set up your first interview campaign
+4. Invite candidates and start screening
+5. Access detailed analytics and reports
 
 ## 🚀 Deployment
 
@@ -287,12 +287,20 @@ We welcome contributions! Here's how you can help:
 
 ## 🎯 Future Enhancements
 
+### 🎓 Student Features
+- [ ] **Mobile App**: React Native app for on-the-go learning
+- [ ] **AI Career Coach**: Personalized career guidance chatbot
+- [ ] **Skill Assessments**: Technical skill evaluation tests
+- [ ] **Virtual Career Fairs**: Online networking events
+- [ ] **Peer Learning**: Study groups and collaboration tools
+
+### 🏢 HR Features
 - [ ] **Video Interview Support**: Real-time video interviews
 - [ ] **Advanced Analytics**: Machine learning insights
-- [ ] **Mobile App**: React Native mobile application
 - [ ] **Integration APIs**: Third-party HR system integrations
 - [ ] **Multi-language Support**: Internationalization
 - [ ] **Advanced Proctoring**: Enhanced anti-cheating measures
+- [ ] **Bulk Operations**: Mass candidate management tools
 
 ## 📄 License
 
@@ -302,7 +310,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 <div align="center">
 
-**👨‍💻 Developer**: Shivam Sharma
+**👨💻 Developer**: Shivam Sharma
 
 [![Email](https://img.shields.io/badge/Email-shivamsharma27107%40gmail.com-red?style=for-the-badge&logo=gmail)](mailto:shivamsharma27107@gmail.com)
 [![GitHub](https://img.shields.io/badge/GitHub-shivamshrma09-black?style=for-the-badge&logo=github)](https://github.com/shivamshrma09)
@@ -313,6 +321,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 ---
 
 <div align="center">
+  <p><strong>🚀 Join thousands of students and companies using NeoRecruiter for smarter hiring! 🚀</strong></p>
   <p><strong>⭐ If you found this project helpful, please give it a star! ⭐</strong></p>
   <p>Made with ❤️ by <a href="https://github.com/shivamshrma09">Shivam Sharma</a></p>
 </div>
