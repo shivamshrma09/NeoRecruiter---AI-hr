@@ -20,7 +20,8 @@ app.use(cors({
       'http://localhost:5173', 
       'https://neorecruiter.vercel.app',
       'http://localhost:3000',
-      'http://localhost:4000'
+      'http://localhost:4000',
+      'https://neo-recruiter-ai-hr.vercel.app'
     ];
     if (!origin) return callback(null, true);
     if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('localhost')) {
